@@ -1,0 +1,138 @@
+#!/bin/sh
+#
+# /etc/rc.d/init.d/p4dti -- startup script for the P4DTI replicator daemon
+#
+# $Id: //info.ravenbrook.com/project/p4dti/version/2.4/packaging/linux/startup-script#1 $
+#
+# This is the startup script for the replicator daemon which is part of
+# the Perforce Defect Tracking Integration (P4DTI).  It is normally
+# installed in the /etc/rc.d/init.d directory on Linux machines so
+# that the daemon is automatically started and stopped by the system,
+# and can be managed by the system administrator.
+#
+# ---
+#
+# These fields are used by the "chkconfig(8)" utility and must appear in the
+# first comment in this script.
+#
+# chkconfig: 345 95 10
+# description: P4DTI replicates information between a Perforce repository \
+#	       and a defect tracking system.
+#
+# ---
+#
+# This file is copyright (c) 2001 Perforce Software, Inc.  All rights  
+# reserved.
+# 
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+# 
+# 1.  Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+# 
+# 2.  Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in
+#     the documentation and/or other materials provided with the
+#     distribution.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# HOLDERS AND CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+# OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+# TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+# USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+# DAMAGE.
+#
+
+# The following definitions are detected by the RPM scripts and edited.
+P4DTIDIR=/opt/p4dti
+LOCKFILE=/var/lock/subsys/p4dti
+PIDFILE=/var/run/p4dti.pid
+
+# See how we were called.
+case "$1" in
+  start)
+        if [ -d $P4DTIDIR ]
+        then
+                cd $P4DTIDIR
+        else
+                printf "p4dti directory (%s) does not exist\n" $P4DTIDIR
+                exit 1
+        fi
+
+	if [ -f $LOCKFILE ]
+	then
+		printf "p4dti subsystem is locked\n"
+		exit 1
+	fi
+	printf "Starting p4dti:\n"
+	if [ "$(id -u)" = "0" ]
+	then
+		su p4dti -c 'python run.py >/dev/null& echo $!' >$PIDFILE
+	else
+		python run.py >/dev/null& 
+		echo $! >$PIDFILE 
+	fi
+	touch $LOCKFILE
+	;;
+  stop)
+	# I believe that stop should succeed even if the process is
+	# not running or broken.
+
+	printf "Shutting down p4dti:\n"
+	if [ -f $PIDFILE ]
+	then
+		pp=$(cat $PIDFILE)
+		if [ -d /proc/$pp ]
+		then
+			kill -TERM $pp
+		else
+			printf "p4dti does not appear to be running\n"
+		fi
+	fi
+	echo
+	rm -f $LOCKFILE
+	rm -f $PIDFILE
+	;;
+  status)
+	if [ -f $PIDFILE ]
+	then
+		pp=$(cat $PIDFILE)
+		if [ -d /proc/$pp ]
+		then
+			printf "%s is running.\n" $pp
+		else
+			printf "p4dti is stopped (but pidfile is present).\n"
+		fi
+	else
+		printf "p4dti is stopped.\n"
+	fi
+	;;
+  restart)
+	$0 stop
+	$0 start
+	;;
+  *)
+	echo "Usage: $0 {start|stop|restart|status}"
+	exit 1
+esac
+
+exit 0
+
+#
+# A. REFERENCES
+#
+#
+# B. DOCUMENT HISTORY
+#
+# 2000-12-21  FJMD  Created.
+# 2001-01-29  FJMD  Finished editing.
+# 2001-02-14  RB    Prepared for check-in to master sources.
+# 2001-03-02  RB    Transferred copyright to Perforce under their license.
+# 2001-03-20  NB    Moved code from /opt/p4dti/bin to /opt/p4dti

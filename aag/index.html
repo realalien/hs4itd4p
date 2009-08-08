@@ -1,0 +1,1420 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
+
+<head>
+
+<title>Perforce Defect Tracking Integration Advanced Administrator's Guide</title>
+
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000" link="#000099" vlink="#660066" alink="#FF0000">
+
+<div align="center">
+
+<p><i><a href="http://www.ravenbrook.com/project/p4dti/">Perforce Defect Tracking Integration Project</a></i></p>
+
+<hr />
+
+
+<h1>Perforce Defect Tracking Integration Advanced Administrator's Guide</h1>
+
+<address>
+<a href="mailto:gdr@ravenbrook.com">Gareth Rees</a>,
+<a href="http://www.ravenbrook.com/">Ravenbrook Limited</a>,
+2001-11-14
+</address>
+
+</div>
+
+
+<h2><a id="section-Contents" name="section-Contents">Contents</a></h2>
+
+<ul>
+
+  <li><a href="#section-1">1. Introduction</a></li>
+
+  <li><a href="#section-2">2. Select the issues to replicate</a>
+
+  <ul>
+
+    <li> <a href="#section-2.1">2.1. Bugzilla examples</a> </li>
+
+  </ul>
+
+  </li>
+
+  <li><a href="#section-3">3. Allowing users to create issues in Perforce</a>
+
+  <ul>
+
+    <li> <a href="#config-replicate_job_p">3.1. The <code class="source">replicate_job_p</code> function</a> </li>
+
+    <li> <a href="#config-prepare_issue">3.2. The <code class="source">prepare_issue</code> function</a> </li>
+
+  </ul>
+
+  </li>
+
+  <li><a href="#section-4">4. Migrating to the defect tracker from Perforce jobs</a>
+
+  <ul>
+
+    <li><a href="#section-4.1">4.1. Planning for migration</a></li>
+
+    <li><a href="#section-4.2">4.2. How to migrate</a></li>
+
+    <li><a href="#section-4.3">4.3. Provide names and e-mail addresses for Perforce users</a></li>
+
+    <li><a href="#section-4.4">4.4. Create defect tracker user accounts</a></li>
+
+    <li><a href="#section-4.5">4.5. Make Perforce jobs consistent with the jobspec</a></li>
+
+    <li><a href="#section-4.6">4.6. Select the jobs to migrate</a></li>
+
+    <li><a href="#section-4.7">4.7. Translate jobs to the new jobspec</a></li>
+
+    <li><a href="#section-4.8">4.8. Transform jobs to issues</a></li>
+
+    <li><a href="#section-4.9">4.9. Summary of translation, transformation, and preparation steps</a></li>
+
+    <li><a href="#section-4.10">4.10. Migrate</a></li>
+
+    <li><a href="#section-4.11">4.11. Handle migration errors</a></li>
+
+  </ul>
+
+  </li>
+
+  <li><a href="#section-5">5. Integrating with multiple Perforce servers</a></li>
+
+  <li><a href="#section-A">A. References</a></li>
+
+  <li><a href="#section-B">B. Document History</a></li>
+
+</ul>
+
+
+<h2><a id="section-1" name="section-1">1. Introduction</a></h2>
+
+<p> This manual is the Perforce Defect Tracking Integration Advanced
+Administrator's Guide.  It describes methods of administering the <abbr
+title="Perforce Defect Tracking Integration">P4DTI</abbr> that are
+outside the scope of the <a
+href="../ag/index.html"><cite>Perforce Defect
+Tracking Integration Administrator's Guide</cite></a> because they
+require a higher level of expertise (see <a
+href="#section-1.1">"Required experience"</a> below). </p>
+
+<p> This document is intended for <abbr title="Perforce Defect Tracking Integration">P4DTI</abbr> administrators.  Ordinary users of the defect tracker or Perforce should read the <a href="../ug/index.html"><cite>Perforce Defect Tracking Integration User's Guide</cite></a>. </p>
+
+<p> This guide does not describe how to install, maintain, or perform ordinary configuration and administration of the
+<abbr title="Perforce Defect Tracking Integration">P4DTI</abbr>.  Read the <a href="../ag/index.html"><cite>Perforce Defect
+Tracking Integration Administrator's Guide</cite></a>. </p>
+
+
+<h3><a id="section-1.1" name="section-1.1">Required experience</a></h3>
+
+<p> To do the things described in this guide, you must have the
+following experience: </p>
+
+<ul>
+
+<li> Perforce: You must be expert with jobspecs and jobs, confident about backing up and restoring from checkpoints, able to set up a duplicate or test Perforce server.  You need good working knowledge of the relevant sections of the <cite><a href="http://www.perforce.com/perforce/doc.072/manuals/p4sag/">Perforce System Administrator's Guide</a></cite>. </li>
+
+<li> The Python programming language: You must be reasonably competent
+with Python; in particular, able to write functions that transform
+dictionaries. </li>
+
+<li> The defect tracker: You must know the defect tracker's database
+schema.  You must have detailed knowledge of your workflow and how the
+workflow puts constraints on the issue data.  You must able to make
+backups and set up a duplicate or test defect tracker. </li>
+
+</ul>
+
+
+<h2><a id="section-2" name="section-2">2. Select the issues to replicate</a></h2>
+
+<p> The <abbr title="Perforce Defect Tracking Integration">P4DTI</abbr>
+selects the issues that get replicated from the defect tracker using the
+<code class="source"><a id="config-replicate_p"
+name="config-replicate_p">replicate_p</a></code> function.  To select
+the issues that get replicated, edit this function in the file <code
+class="filename">config.py</code> in the installation directory. </p>
+
+<p> Normally, the <abbr title="Perforce Defect Tracking
+Integration">P4DTI</abbr> replicates all issues created or modified
+after the <code class="source"><a
+href="../ag/index.html#config-start_date">start_date</a></code>,
+but you can modify this function to further restrict the issues.  See <a href="../ag/index.html#section-5.1">section 5.1, "<abbr title="Perforce Defect Tracking Integration">P4DTI</abbr> configuration"</a>, of the <a href="../ag/index.html"><cite>Perforce Defect
+Tracking Integration Administrator's Guide</cite></a> for more details of the <code class="source"><a
+href="../ag/index.html#config-start_date">start_date</a></code> parameter. </p>
+
+<p> <strong>Note:</strong> after an issue starts being replicated, it
+continues to be replicated, even if it no longer matches the <code
+class="source">replicate_p</code> criteria. </p>
+
+<p> The function is passed one argument, the issue, in the form of a
+Python dictionary that maps field names (strings) to field values.  If
+the function returns 1, the issue is replicated.  If it returns 0, the
+issue is not. </p>
+
+<p> The <code class="source"><a href="#config-replicate_p">replicate_p</a></code> function does not have to check the <code class="source"><a
+href="../ag/index.html#config-start_date">start_date</a></code> configuration parameter.  The <code class="source"><a
+href="../ag/index.html#config-start_date">start_date</a></code> is always honored by the <abbr title="Perforce Defect Tracking Integration">P4DTI</abbr>, in addition to any test made by <code class="source"><a href="#config-replicate_p">replicate_p</a></code>. </p>
+
+
+<div class="bugzilla">
+
+<h3><a id="section-2.1" name="section-2.1">2.1. Bugzilla examples</a></h3>
+
+<p> This example restricts replication to unresolved issues in the "horseshoe" product: </p>
+
+<blockquote><pre class="source">
+def <a href="#config-replicate_p">replicate_p</a>(issue):
+    return (issue["product"] == "horseshoe"
+            and issue["resolution"] == "")
+</pre></blockquote>
+
+<p> This example restricts replication to issues with the "nail" component: </p>
+
+<blockquote><pre class="source">
+def <a href="#config-replicate_p">replicate_p</a>(issue):
+    return (issue["component"] == "nail")
+</pre></blockquote>
+
+<p> This example restricts replication to all issues in the
+"horseshoe" and "nail" components, and additionally unresolved issues
+for the "harness" product with the "harvest fair" target milestone).
+Note the use of parentheses:</p>
+
+<blockquote><pre class="source">
+def <a href="#config-replicate_p">replicate_p</a>(issue):
+    return (issue["component"] in ["horseshoe", "nail"] or
+            (issue["product"] == "harness" and
+             issue["resolution"] == "" and
+             issue["target_milestone" == "harvest fair"))
+</pre></blockquote>
+
+</div>
+
+
+<h2><a id="section-3" name="section-3">3. Allowing users to create issues in Perforce</a></h2>
+
+<p> By default, the <abbr title="Perforce Defect Tracking
+Integration">P4DTI</abbr> requires users to create issues using the
+defect tracker.  It ignores jobs created in Perforce.  The <abbr
+title="Perforce Defect Tracking Integration">P4DTI</abbr> can be
+configured to transform new jobs created in Perforce into new issues in
+the defect tracker. </p>
+
+<p> To cause the <abbr title="Perforce Defect Tracking
+Integration">P4DTI</abbr> to replicate jobs created in Perforce, add two
+functions to the end of <code class="filename">config.py</code>: <a
+href="#config-replicate_job_p"><code
+class="source">replicate_job_p</code></a> and <a
+href="#config-prepare_issue"><code
+class="source">prepare_issue</code></a>.</p>
+
+
+<h3> <a id="section-3.1" name="section-3.1">3.1. The <code class="source">replicate_job_p</code> function</a> </h3>
+
+<p> The <a id="config-replicate_job_p"
+name="config-replicate_job_p"><code
+class="source">replicate_job_p</code></a> function chooses the jobs in
+Perforce that get added to the defect tracker.  The function takes the
+newly-created job as its argument, in the form of a Python dictionary
+that maps field names (strings) to field values (strings).  If it returns
+1, the job is added to the defect tracker and replicated thereafter.  If
+it retuns 0, the job is not replicated. </p>
+
+<p> <strong>Note:</strong> after a job starts being replicated it,
+continues to be replicated, even if it no longer matches the <code
+class="source">replicate_job_p</code> criteria. </p>
+
+<p> If you want all newly-created jobs to be translated and added to the
+defect tracker, write a <code class="source">replicate_job_p</code>
+function as follows: </p>
+
+<blockquote><pre class="source">
+def <a href="#config-replicate_job_p">replicate_job_p</a>(job):
+    return 1
+</pre></blockquote>
+
+
+<div class="bugzilla">
+
+<h4><a id="section-3.1.1" name="section-3.1.1">3.1.1. Bugzilla example</a></h4>
+
+<p> To replicate newly-created jobs for products called "horseshoe"
+and "nail", add the <code>product</code> field to the <a
+href="../ag/index.html#config-replicated_fields-Bugzilla"><code
+class="source">replicated_fields</code></a> configuration parameter.
+This field gets replicated to the job field "Product" in Perforce, so
+write a <code class="source">replicate_job_p</code> function as
+follows:
+</p>
+
+<blockquote><pre class="source">
+def <a href="#config-replicate_job_p">replicate_job_p</a>(job):
+    return job["Product"] in ["horseshoe", "nail"]
+</pre></blockquote>
+
+</div>
+
+
+<h3> <a id="section-3.2" name="section-3.2">3.2. The <code class="source">prepare_issue</code> function</a> </h3>
+
+<p> The <abbr title="Perforce Defect Tracking Integration">P4DTI</abbr>
+does its best to build the new issue, but the defect tracker might
+require fields that can't be translated automatically from fields in the
+job.  So the <abbr title="Perforce Defect Tracking
+Integration">P4DTI</abbr> calls the <a id="config-prepare_issue"
+name="config-prepare_issue"><code
+class="source">prepare_issue</code></a> function to complete the
+transformation of a new job in Perforce to an issue in the defect
+tracker, by supplying values for fields that can't be translated
+automatically. </p>
+
+<p> The function takes two arguments (<code class="source">issue</code>,
+<code class="source">job</code>): </p>
+
+<dl>
+
+<dt><code class="source">issue</code></dt>
+
+<dd><p> The partly-constructed issue, in the form of a Python dictionary
+that maps field names (strings) to field values.  For example, in
+Bugzilla this might be: </p>
+
+<blockquote><pre class="source">{
+    "bug_status":  "CLOSED",
+    "resolution":  "FIXED",
+    "short_desc":  "The widgets are specified in imperial units (ft/lb/s).",
+    "longdesc":    "But 80% of customers use ISO 31, so we should use m/kg/s.\n"
+    "priority":    "P1",
+    "product":     "widget",
+    "assigned_to": 32,
+}</pre></blockquote></dd>
+
+<dt><code class="source">job</code></dt>
+
+<dd><p> The job, in the form of a Python dictionary that maps field
+names (strings) to a field values (strings).  For example: </p>
+
+<blockquote><pre class="source">{
+    "Job": "job000123",
+    "Status": "closed",
+    "Assigned_To": "gdr",
+    "Date": "2001/10/11",
+    "Summary": "The widgets are specified in imperial units (ft/lb/s).",
+    "Description": "But 80% of customers use ISO 31, so we should use m/kg/s.\n",
+    "Priority": "P1",
+    "Product": "widget",
+}</pre></blockquote></dd>
+
+</dl>
+
+<p> The function must modify <code class="source">issue</code> so that
+it is valid for the defect tracker.  The following section explains
+what "valid" means for Bugzilla:</p>
+
+
+<div class="bugzilla">
+
+<h4><a id="section-3.2.1" name="section-3.2.1">3.2.1. Preparing issues for Bugzilla</a></h4>
+
+<p> In the Bugzilla integration, new issues must have a valid value for
+the following fields: </p>
+
+<dl>
+
+<dt><code class="source">product</code></dt>
+
+<dd><p> The the name of a product in the Bugzilla <code
+class="source">products</code> table. </p>
+
+<p> If the <code class="source">product</code> field is not one of the
+<a
+href="../ag/index.html#config-replicated_fields-Bugzilla"><code
+class="source">replicated_fields</code></a>, then the <abbr
+title="Perforce Defect Tracking Integration">P4DTI</abbr> picks the
+empty string for <code class="source">issue["product"]</code> (except
+when there's only one product, in which case the <abbr title="Perforce
+Defect Tracking Integration">P4DTI</abbr> picks that product). </p></dd>
+
+<dt><code class="source">component</code></dt>
+
+<dd><p> The name of a component of the product to which the issue
+belongs. </p>
+
+<p> If the <code class="source">component</code> field is not one of the
+<a
+href="../ag/index.html#config-replicated_fields-Bugzilla"><code
+class="source">replicated_fields</code></a>, then the <abbr
+title="Perforce Defect Tracking Integration">P4DTI</abbr> picks the
+empty string for <code class="source">issue["component"]</code> (except
+when there's only one component of the product, in which case the <abbr
+title="Perforce Defect Tracking Integration">P4DTI</abbr> picks that
+component). </p></dd>
+
+<dt><code class="source">version</code></dt>
+
+<dd><p> The name of a version of the product to which the issue
+belongs. </p>
+
+<p> If the <code class="source">version</code> field is not one of the
+<a
+href="../ag/index.html#config-replicated_fields-Bugzilla"><code
+class="source">replicated_fields</code></a>, then the <abbr
+title="Perforce Defect Tracking Integration">P4DTI</abbr> picks the
+empty string for <code class="source">issue["version"]</code> (except
+when there's only one version of the product, in which case the <abbr
+title="Perforce Defect Tracking Integration">P4DTI</abbr> picks that
+version). </p></dd>
+
+</dl>
+
+<p> You can use the <code class="source">prepare_issue</code> function
+to supply default values for other fields in Bugzilla.  See the Bugzilla
+database schema [<a title="Bugzilla database schema"
+href="http://www.ravenbrook.com/project/p4dti/tool/cgi/bugzilla-schema/">NB
+2000-11-14a</a>] for details. </p>
+
+
+<h4><a id="section-3.2.2" name="section-3.2.2">3.2.2. Bugzilla example</a></h4>
+
+<p> The following function supplies a default product, component and
+version if necessary: </p>
+
+<blockquote><pre class="source">
+def <a href="#config-prepare_issue">prepare_issue</a>(issue, job):
+    default_component = {
+        "horseshoe": "user interface",
+        "nail": "manufacturing",
+        }
+    default_version = {
+        "horseshoe": "1.7",
+        "nail": "2.3beta",
+        }
+    if issue["product"] == "":
+        issue["product"] = "horseshoe"
+    product = issue["product"]
+    if issue["component"] == "":
+        issue["component"] = default_component[product]
+    if issue["version"] == "":
+        issue["version"] = default_version[product]
+</pre></blockquote>
+
+</div>
+
+
+<h2><a id="section-4" name="section-4">4. Migrating to the defect tracker from Perforce jobs</a></h2>
+
+<p> Migration is the process of loading your Perforce jobs into the
+defect tracker. </p>
+
+<h3><a id="section-4.1" name="section-4.1">4.1. Planning for migration</a></h3>
+
+<h4><a id="section-4.1.1" name="section-4.1.1">4.1.1. Configuring and testing the <abbr title="Perforce Defect Tracking Integration">P4DTI</abbr> and migration</a></h4>
+
+<ol>
+
+<li> <p> Create a Perforce server for testing. </p> </li>
+
+<li> <p> Create a defect tracker for testing.  If you have existing
+defect tracking data, make a copy that includes your workflow and a
+representative sample of your existing issues. </p> </li>
+
+<li> <p> Set up and test the <abbr title="Perforce Defect Tracking
+Integration">P4DTI</abbr> on the test Perforce server and test defect
+tracker, following the instructions in the <a
+href="../ag/index.html"><cite>Perforce Defect
+Tracking Integration Administrator's Guide</cite></a>.  Test the
+integrated system and verify that the workflow is correct. </p> </li>
+
+<li> <p> Record the jobspec in your test Perforce server, either
+created by the <abbr title="Perforce Defect Tracking
+Integration">P4DTI</abbr> or (using <a
+href="../ag/index.html#config-keep_jobspec"><code
+class="source">keep_jopspec</code></a>) installed by you and extended
+by <code class="source">extend_jobspec.py</code> (see <a
+href="../ag/index.html#section-5.2.3">section 5.2.3,
+"Handle Perforce jobs and jobspec"</a>, of the <cite><a
+href="../ag/index.html">Perforce Defect Tracking
+Integration Administrator's Guide</a></cite>).  For example run a
+command like <code class="command">p4 jobspec -o &gt;
+saved-jobspec</code>, or print out the jobspec.  This jobspec is used
+in configuring the translation step of the migrator.  (See <a
+href="#section-4.7">section 4.7, "Translating to the new
+jobspec"</a>.) </p> </li>
+
+<li> <p> Replace the test Perforce server with a server that has a copy
+of all your jobs and fixes.  (Create a checkpoint of your main Perforce
+server and restore it onto a new empty Perforce server.  See <a
+href="http://www.perforce.com/perforce/doc.072/manuals/p4sag/02_backup.html">chapter
+2, "Supporting Perforce: Backup and Recovery"</a>, of the <cite><a
+href="http://www.perforce.com/perforce/doc.072/manuals/p4sag/">Perforce
+2007.2 System Administrator's Guide</a></cite>.) </p> </li>
+
+<li> <p> Set up and test migration from the test Perforce server to the test defect tracker, as described in <a href="#section-4.2">section 4.2, "How to migrate"</a>. </p> </li>
+
+<li> <p> Apply any workflow changes you made on your test defect tracker to your main defect tracker server. </p> </li>
+
+</ol>
+
+<p> When you are confident that you have the correct configuration, proceed to <a href="#section-4.1.2">section 4.1.2, "Going live with the P4DTI with migration"</a>. </p>
+
+
+<h4><a id="section-4.1.2" name="section-4.1.2">4.1.2. Going live with the migrated data</a></h4>
+
+<p> After you have configured and tested the <abbr title="Perforce
+Defect Tracking Integration">P4DTI</abbr> with migration, follow these
+steps to make the system available to your users: </p>
+
+<ol>
+
+<li> <p> Ask your users to stop using the defect tracker and Perforce server. </p> </li>
+
+<li> <p> Make a backup up of your Perforce repository and your defect
+tracker database, in case there are any serious problems. </p>
+
+  <ul>
+
+  <li><p> Perforce: make a checkpoint of your Perforce server; see <a
+  href="http://www.perforce.com/perforce/doc.072/manuals/p4sag/02_backup.html">chapter
+  2, "Supporting Perforce: Backup and Recovery"</a>, of the <cite><a
+  href="http://www.perforce.com/perforce/doc.072/manuals/p4sag/">Perforce
+  2007.2 System Administrator's Guide</a></cite>. </p></li>
+
+  <li><p> Bugzilla: run <code class="command">mysqldump -u <i>user</i>
+  <i>database</i> &gt; <i>backup-file</i></code>.  See <a
+  href="http://www.mysql.com/doc/B/a/Backup.html">section 4.4.1,
+  "Database Backups"</a>, of the <cite>MySQL ManuaL</cite>. </p></li>
+
+  </ul></li>
+
+<li> <p> Edit your <code>config.py</code> file to point to your main Perforce and defect tracker servers. </p> </li>
+
+<li> <p> Run the migration and check the results (<a href="#section-4.10">4.10</a>). </p> </li>
+
+<li> <p> Start the <abbr title="Perforce Defect Tracking
+Integration">P4DTI</abbr>. </p> </li>
+
+</ol>
+
+
+<h3><a id="section-4.2" name="section-4.2">4.2. How to migrate</a></h3>
+
+<p> Migration cannot be done automatically by the <abbr title="Perforce
+Defect Tracking Integration">P4DTI</abbr>, because the data in Perforce
+is in a very different format from the defect tracker, and the way your
+workflow is implemented in Perforce is likely to be different from the
+way it's implemented in the defect tracker. </p>
+
+<p> Here is an overview of migration.  The details of each step are
+covered in the following sections. </p>
+
+<ol>
+
+  <li>
+
+  <p> Prepare the Perforce data for migration: </p>
+
+  <ol type="a">
+
+    <li><p> Ensure that users in Perforce match users in the defect
+    tracker (<a href="#section-4.3">4.3</a> and <a
+    href="#section-4.4">4.4</a>). </p></li>
+
+    <li><p> Make Perforce jobs consistent with the current jobspec so
+    the <abbr title="Perforce Defect Tracking Integration">P4DTI</abbr>
+    can transform them correctly (<a
+    href="#section-4.5">4.5</a>). </p></li>
+
+  </ol>
+
+  </li>
+
+  <li>
+
+  <p> Write Python functions in your <code>config.py</code> to do the following: </p>
+
+  <ol type="a">
+
+    <li><p> Select the jobs to migrate (<a
+    href="#section-4.6">4.6</a>). </p></li>
+
+    <li><p> Translate these jobs so they match the jobspec you plan to
+    use (<a href="#section-4.7">4.7</a>). </p></li>
+
+    <li><p> Satisfy any defect tracker constraints on submitted issues
+    (<a href="#section-4.8">4.8</a>). </p></li>
+
+  </ol>
+
+  </li>
+
+  <li><p> Migrate the selected jobs to the defect tracker (<a
+  href="#section-4.10">4.10</a>). </p></li>
+
+</ol>
+
+
+<h3><a id="section-4.3" name="section-4.3">4.3. Provide names and e-mail addresses for Perforce users</a></h3>
+
+<p> Give every Perforce user a name and e-mail address, to enable the
+<abbr title="Perforce Defect Tracking Integration">P4DTI</abbr> to <span
+class="bugzilla">automatically make user accounts in Bugzilla for each
+Perforce user (see <a href="#section-4.4">section 4.4, "Making defect
+tracker user accounts"</a>).</span> </p>
+
+
+<h3><a id="section-4.4" name="section-4.4">4.4. Create defect tracker user accounts</a></h3>
+
+<p> In your defect tracker, create a user account for every Perforce
+user who originates or works on issues. </p>
+
+<div class="bugzilla">
+
+<p> For Bugzilla, follow these steps to create the users automatically:
+</p>
+
+<ol>
+
+  <li><p> Specify <a
+  href="../ag/index.html#config-dbms_host"><code
+  class="source">dbms_host</code></a>, <a
+  href="../ag/index.html#config-dbms_port"><code
+  class="source">dbms_port</code></a>, <a
+  href="../ag/index.html#config-dbms_user"><code
+  class="source">dbms_user</code></a> and <a
+  href="../ag/index.html#config-dbms_password"><code
+  class="source">dbms_password</code></a> in <code
+  class="filename">config.py</code> if you haven't already done so.
+  </p></li>
+
+  <li><p> Specify these two configuration parameters in <code
+  class="filename">config.py</code> (unless you're happy with the
+  default values): </p>
+
+  <ul>
+
+    <li><p> <a id="config-migrated_user_groups"
+    name="config-migrated_user_groups"><code
+    class="source">migrated_user_groups</code></a> is a list of Bugzilla
+    groups.  Automatically created users in Bugzilla belong to all the
+    groups in this list.  For example, if <code
+    class="source">migrated_user_groups = ["editbugs",
+    "canconfirm"]</code> then users can edit and confirm bugs.  The
+    default value is <code class="source">[]</code> (that is, users
+    belong to no groups). </p>
+
+    <p> To see the Bugzilla groups and their meaning, log into Bugzilla
+    as an administrator and select "edit groups" from the options at the
+    bottom right. </p></li>
+
+    <li><p> <a id="config-migrated_user_password"
+    name="config-migrated_user_password"><code
+    class="source">migrated_user_password</code></a> is a string.
+    Automatically created users have this password in Bugzilla.  For
+    example, if <code class="source">migrated_user_password =
+    "spong"</code> then users have password "spong".  The default value
+    is <code class="source">"password"</code>. </p></li>
+
+  </ul></li>
+
+  <li><p> Go to the <abbr title="Perforce Defect Tracking
+  Integration">P4DTI</abbr> installation directory. </p></li>
+
+  <li><p> Run the command <code class="command">python
+  migrate_users.py</code>. </p></li>
+
+</ol>
+
+</div>
+
+
+<h3><a id="section-4.5" name="section-4.5">4.5. Make Perforce jobs consistent with the jobspec</a></h3>
+
+<p> If you change the jobspec, Perforce doesn't update its existing jobs
+to match, so some jobs might be inconsistent with the revised jobspec.
+Examples: a "required" field that is missing from some jobs; a "select"
+field for which some jobs have an illegal value.  These problems prevent
+the <abbr title="Perforce Defect Tracking Integration">P4DTI</abbr> from
+reading the jobs. </p>
+
+<p> To find inconsistencies, go to the <abbr title="Perforce Defect
+Tracking Integration">P4DTI</abbr> installation directory and run the
+command <code class="command">python check_jobs.py</code> (it takes
+about a minute for every thousand jobs on a typical system).  For
+example: </p>
+
+<blockquote><samp>
+$ python check_jobs.py <br />
+(P4DTI-10081)&nbsp; Job 'job000024' doesn't match the jobspec: <br />
+(P4DTI-7087)&nbsp; Error detected at line 11. <br />
+Value for field 'Status' must be one of open/suspended/closed.
+</samp></blockquote>
+
+<p> Fix these jobs so that they match the jobspec.  When this is done,
+you'll get the following output: </p>
+
+<blockquote><samp>
+$ python check_jobs.py <br />
+(P4DTI-10092)&nbsp; All jobs match the jobspec.
+</samp></blockquote>
+
+
+<h3><a id="section-4.6" name="section-4.6">4.6. Select the jobs to migrate</a></h3>
+
+<p> To select the jobs to migrate, add the function <a
+href="#config-migrate_p"><code class="source">migrate_p</code></a> to
+the end of <code>config.py</code>. </p>
+
+<p> The <a id="config-migrate_p" name="config-migrate_p"><code
+class="source">migrate_p(job)</code></a> function determines whether to
+migrate a job to the defect tracker.  The <code>job</code> argument is
+the job being considered for migration (in the old jobspec), in the form
+of a dictionary that maps field names (strings) to field values (strings).
+If it returns 1, the job is migrated.  If it returns 0, the job is not
+migrated. </p>
+
+<h4><a id="section-4.6.1" name="section-4.6.1">4.6.1. Examples of <code class="source">migrate_p</code></a></h4>
+
+<p> Example 1.  To migrate all jobs: </p>
+
+<blockquote><pre class="source">
+def <a href="#config-migrate_p">migrate_p</a>(job):
+    return 1
+</pre></blockquote>
+
+<p> Example 2.  To migrate only open jobs: </p>
+
+<blockquote><pre class="source">
+def <a href="#config-migrate_p">migrate_p</a>(job):
+    return job["Status"] == "open"
+</pre></blockquote>
+
+<p> Example 3.  To migrate only jobs in the "horseshoe" and "nail"
+projects: </p>
+
+<blockquote><pre class="source">
+def <a href="#config-migrate_p">migrate_p</a>(job):
+    return job["Project"] in ["horseshoe", "nail"]
+</pre></blockquote>
+
+
+<h3><a id="section-4.7" name="section-4.7">4.7. Translate jobs to the new jobspec</a></h3>
+
+<p> Add the function <a href="#config-translate_jobspec"><code
+class="source">translate_jobspec</code></a> to the end of
+<code>config.py</code>. </p>
+
+<p> The <a id="config-translate_jobspec"
+name="config-translate_jobspec"><code
+class="source">translate_jobspec</code></a> function translates a job
+from the old jobspec (before migration) to the new jobspec (after
+migration).  Note that the jobspecs might be very similar, especially
+if you use <a
+href="../ag/index.html#config-keep_jobspec"><code
+class="source">keep_jopspec</code></a>, so this function might be
+very simple.  The old job is passed as the single argument, in the
+form of a dictionary that maps field names (strings) to field values
+(strings).  The new job must be returned in the same form (it's OK to
+update and return the argument). </p>
+
+
+<div class="bugzilla">
+
+<h4><a id="section-4.7.1" name="section-4.7.1">4.7.1. Bugzilla example</a></h4>
+
+<p> Example Perforce job in the old jobspec: </p>
+
+<div align="center">
+
+<table border="1" cellspacing="0" cellpadding="5"><tr><td><pre>
+Job: job000123
+Status: closed
+User: gdr
+Date: 2001/10/11
+Description:
+        The widgets are specified in imperial units (ft/lb/s).
+        But 80% of customers use ISO 31, so we should use m/kg/s.
+Priority: high
+Project: widget
+</pre></td></tr></table>
+
+</div>
+
+<p> You plan to set <code class="source"><a
+href="../ag/index.html#config-replicated_fields-Bugzilla">replicated_fields</a>=["resolution",
+"short_desc", "priority", "product"]</code>, so jobs look like this in
+the new jobspec: </p>
+
+<div align="center">
+
+<table border="1" cellspacing="0" cellpadding="5"><tr><td><pre>
+Job: job000123
+Status: closed
+Assigned_To: gdr
+Date: 2001/10/11
+Summary:
+        The widgets are specified in imperial units (ft/lb/s).
+Description:
+        But 80% of customers use ISO 31, so we should use m/kg/s.
+Resolution: FIXED
+Priority: P1
+Product: widget
+</pre></td></tr></table>
+
+</div>
+
+<p> So these changes are needed: </p>
+
+<ol>
+
+<li><p> The old jobspec has a single "Description" field, but the new
+jobspec has both a "Summary" (one line) and a "Description" (many
+lines).  So split the old description so that its first line becomes the
+new summary. </p></li>
+
+<li><p> Rename the "User" field as "Assigned_To". </p></li>
+
+<li><p> In the old jobspec, the status is "open", "closed" or
+"suspended".  In the new jobspec, the status is represented by a
+combination of "Status" and "Resolution" fields.  Translate status as
+shown in the table below. </p>
+
+<table border="1" cellspacing="0" cellpadding="5" align="center">
+<tr valign="top">
+  <th>Old status</th>
+  <th>New status</th>
+  <th>Resolution</th>
+</tr>
+<tr valign="top">
+  <td><code>"open"</code></td>
+  <td><code>"assigned"</code></td>
+  <td><code>""</code></td>
+</tr>
+<tr valign="top">
+  <td><code>"closed"</code></td>
+  <td><code>"closed"</code></td>
+  <td><code>"FIXED"</code></td>
+</tr>
+<tr valign="top">
+  <td><code>"suspended"</code></td>
+  <td><code>"closed"</code></td>
+  <td><code>"LATER"</code></td>
+</tr>
+</table></li>
+
+</ol>
+
+<p> Here's a <code class="source">translate_jobspec</code> function that
+implements all the changes discussed above: </p>
+
+<blockquote><pre class="source">
+def <a href="#config-translate_jobspec">translate_jobspec</a>(job):
+    # Description -&gt; Summary + Description
+    import string
+    desc = job.get("Description", "")
+    newline = string.find(desc, "\n")
+    job["Summary"] = desc[:newline]
+    job["Description"] = desc[newline+1:]
+
+    # User -&gt; Assigned_To
+    job["Assigned_To"] = job.get("User", "")
+
+    # Translate Status -&gt; Status + Resolution
+    status_map = {
+        "open": ("assigned", ""),
+        "closed": ("closed", "FIXED"),
+        "suspended": ("closed", "LATER"),
+        }
+    (status, resolution) = status_map[job.get("Status", "open")]
+    job["Status"] = status
+    job["Resolution"] = resolution
+
+    return job
+</pre></blockquote>
+
+</div>
+
+
+<h3><a id="section-4.8" name="section-4.8">4.8. Transform jobs to issues</a></h3>
+
+<p> Jobs translated to the new jobspec might not be suitable for
+submission to the defect tracker.  The defect tracker might have
+additional constraints, or require fields that can't be translated from
+fields in the job.  You must write a <a
+href="#config-prepare_issue"><code
+class="source">prepare_issue</code></a> function as described in <a
+href="#section-3.2">section 3.2, "The <code
+class="source">prepare_issue</code> function"</a>. </p>
+
+
+<h3><a id="section-4.9" name="section-4.9">4.9. Summary of translation, transformation, and preparation steps</a></h3>
+
+<p> <a href="#figure-1">Figure 1</a> shows a summary of the translate, transform, and preparation steps of the migration process: </p>
+
+<ol>
+
+<li><p> <a id="note-4.9.1" name="note-4.9.1">Translate the job from the
+old jobspec to the new jobspec</a> using the <a
+href="#config-translate_jobspec"><code>translate_jobspec</code></a>
+function. </p></li>
+
+<li><p> <a id="note-4.9.2" name="note-4.9.2">The <abbr title="Perforce
+Defect Tracking Integration">P4DTI</abbr> transforms the job to an
+issue</a> by converting each field in <a
+href="../ag/index.html#config-replicated_fields-Bugzilla"><code
+class="source">replicated_fields</code></a>
+and any system fields. </p></li>
+
+<li><p> <a id="note-4.9.3" name="note-4.9.3">Prepare for submission to
+the defect tracker</a> using the <a
+href="#config-prepare_issue"><code>prepare_issue</code></a>
+function. </p></li>
+
+</ol>
+
+<div align="center">
+
+<p> <a id="figure-1" name="figure-1">Figure 1. The translate, transform, and prepare steps.  The example data in the figure is for Bugzilla.</a>
+</p>
+
+<img src="translation.png" alt="Diagram of the translate, transform, and prepare steps during migration" width="549" height="484" border="0" usemap="map-1" />
+
+<map id="map-1" name="map-1">
+
+<area href="#note-4.9.1" shape="rect" coords="172,349,261,363" alt="Step 1:
+translate from old jobspec to new jobspec" />
+
+<area href="#note-4.9.2" shape="rect" coords="158,220,287,234" alt="Step 2:
+translate job to issue." />
+
+<area href="#note-4.9.3" shape="rect" coords="162,103,269,117" alt="Step 3:
+prepare issue for submission to the defect tracker." />
+
+</map>
+
+</div>
+
+
+<h3><a id="section-4.10" name="section-4.10">4.10. Migrate</a></h3>
+
+<ol>
+
+<li><p> Make a checkpoint of the Perforce server as described in <a
+href="http://www.perforce.com/perforce/doc.072/manuals/p4sag/02_backup.html">chapter
+2, "Supporting Perforce: Backup and Recovery"</a>, of the <cite><a
+href="http://www.perforce.com/perforce/doc.072/manuals/p4sag/">Perforce
+2007.2 System Administrator's Guide</a></cite>. </p></li>
+
+<li><p> Go to the <abbr title="Perforce Defect Tracking
+Integration">P4DTI</abbr> installation directory and run the command
+<code class="command">python migrate.py</code>.  If it succeeds, it
+prints output like this.  (If you see no output, then your <a
+href="#config-migrate_p"><code class="source">migrate_p</code></a>
+function isn't matching any jobs.) </p>
+
+<blockquote><samp>
+2001-11-14 12:34:13&nbsp; (P4DTI-8920)&nbsp; Migrated job 'job000001' to issue 'BUG00001'. <br />
+2001-11-14 12:34:13&nbsp; (P4DTI-8920)&nbsp; Migrated job 'job000002' to issue 'BUG00002'. <br />
+2001-11-14 12:34:13&nbsp; (P4DTI-8206)&nbsp; -- Added fix for change 3326 with status closed. <br />
+... <br />
+2001-11-14 12:35:02&nbsp; (P4DTI-8953)&nbsp; Migration completed.
+</samp></blockquote>
+
+<div class="Bugzilla">
+
+<p> Notes for Bugzilla users: </p>
+
+<ul>
+
+<li><p> The <abbr title="Perforce Defect Tracking
+Integration">P4DTI</abbr> locks the Bugzilla database while migrating,
+so no-one can use Bugzilla until migration completes. </p></li>
+
+<li><p> If you've specified a value for <a
+href="../ag/index.html#config-bugzilla_directory"><code
+class="source">bugzilla_directory</code></a>, you'll see the message
+"Running %d deferred commands..." after the last job is migrated and
+before the "Migration completed" message appears.  This is because
+Bugzilla's mail-sending script is being run for each migrated issue.
+(If you don't want notifications to be sent when migrating, set <code
+class="source">bugzilla_directory=None</code> while migrating and
+reset it afterwards.) </p></li>
+
+</ul>
+
+</div></li>
+
+<li><p> Handle errors (see <a href="#section-4.11">section 4.11</a>).
+When you've fixed the problem, run <code class="command">python
+migrate.py</code> again.  Provide the command-line option <code
+class="command">-s <i>JOBNAME</i></code> to start migrating at a
+particular job.  For example, if migration failed because of a problem
+job000123, then continue migrating with <code class="command">python
+migrate.py -s job000123</code>. </p></li>
+
+<li><p> In the defect tracker, verify that all the Perforce jobs you
+want to replicate are present and that the values in all fields are
+correct.  If not, fix the problems by hand, or edit the <a
+href="#config-migrate_p"><code class="source">migrate_p</code></a>, <a
+href="#config-translate_jobspec"><code
+class="source">translate_jobspec</code></a> and <a
+href="#config-prepare_issue"><code
+class="source">prepare_issue</code></a> functions to correct the problem, and run migration
+again. </p></li>
+
+<li><p>If using <a
+href="../ag/index.html#config-keep_jobspec"><code
+class="source">keep_jopspec</code></a>, update the jobspec to support
+the P4DTI, for instance by running <code class="command">python
+extend_jobspec.py</code>.  See <a
+href="../ag/index.html#section-5.2.3">section 5.2.3,
+"Handle Perforce jobs and jobspec"</a>, of the <cite><a
+href="../ag/index.html">Perforce Defect Tracking
+Integration Administrator's Guide</a></cite>.</p></li>
+
+<li><p> Replace the existing jobs in Perforce with jobs replicated from
+the defect tracker's database by refreshing them as described in <a
+href="../ag/index.html#section-9.2">section 9.2,
+"Refreshing jobs in Perforce"</a>, of the <cite><a
+href="../ag/index.html">Perforce Defect Tracking
+Integration Administrator's Guide</a></cite>. </p></li>
+
+<li><p> Check the consistency of the replicated data by running the
+consistency checker as described in <a
+href="../ag/index.html#section-7.3">section 7.3,
+"Checking data consistency"</a>, of the <cite><a
+href="../ag/index.html">Perforce Defect Tracking
+Integration Administrator's Guide</a></cite>.  If this consistency check
+fails, fix the problems by hand, or restore your Perforce server from
+the checkpoint you made earlier, edit the <a
+href="#config-migrate_p"><code class="source">migrate_p</code></a>, <a
+href="#config-translate_jobspec"><code
+class="source">translate_jobspec</code></a> and <a
+href="#config-prepare_issue"><code
+class="source">prepare_issue</code></a> functions to correct the problem
+and run migration again. </p></li>
+
+<li><p> Start the <abbr title="Perforce Defect Tracking
+Integration">P4DTI</abbr> as described in <a
+href="../ag/index.html#section-5.5">section 5.5,
+"Starting and stopping the replicator manually"</a>, of the <cite><a
+href="../ag/index.html">Perforce Defect Tracking
+Integration Administrator's Guide</a></cite>. </p></li>
+
+</ol>
+
+
+<h3><a id="section-4.11" name="section-4.11">4.11. Handle migration errors</a></h3>
+
+<p> These kinds of error are likely to be encountered during migration:
+</p>
+
+<ul>
+
+<li><p> The <abbr title="Perforce Defect Tracking
+Integration">P4DTI</abbr> can't translate a user.  For example: </p>
+
+<blockquote><samp>
+(P4DTI-9231)&nbsp; Translating job field 'User' (value 'spong') to issue field 'assigned_to'... <br />
+(P4DTI-921X)&nbsp; Migrating job 'job000174'... <br />
+Bugzilla module error (P4DTI-514X)&nbsp; There is no Bugzilla user corresponding to Perforce user 'spong'.
+</samp></blockquote>
+
+<p> This can happen even if you translated all Perforce users in <a
+href="#section-4.4">section 4.4</a>, because a deleted Perforce user
+might still appear in fields in jobs. </p>
+
+<p> Choose the most appropriate of these four solutions: </p>
+
+<ul>
+
+<li><p> Add the user to Perforce and to the defect tracker.  (You need a
+spare Perforce license.) </p></li>
+
+<li><p> Bugzilla: Add the user to Bugzilla (only) and edit the job so
+that the user's e-mail address appears instead of the user name.  (The
+<abbr title="Perforce Defect Tracking Integration">P4DTI</abbr> can
+match this address to the user in Bugzilla without the user needing to
+exist in Perforce.) </p></li>
+
+<li><p> Edit the job and replace the non-existent user with a real
+user. </p></li>
+
+</ul></li>
+
+<li><p> The <abbr title="Perforce Defect Tracking
+Integration">P4DTI</abbr> can't transform a job to an issue; for
+example: </p>
+
+<blockquote><samp>
+(P4DTI-9231)&nbsp; Translating job field 'Status' (value 'ignore') to issue field 'status'... <br />
+(P4DTI-921X)&nbsp; Migrating job 'job000174'... <br />
+(P4DTI-5102)&nbsp; No Bugzilla status corresponding to Perforce status 'ignore'.
+</samp></blockquote>
+
+<p> The <a href="#config-translate_jobspec"><code
+class="source">translate_jobspec</code></a> function has failed to
+translate all values in Perforce.  (In the example error, it must
+translate the Perforce status <code>ignore</code> to a Bugzilla status
+and resolution, as shown in the example in <a
+href="#section-4.7.1">section 4.7.1</a>.) </p></li>
+
+<li><p> The <abbr title="Perforce Defect Tracking
+Integration">P4DTI</abbr> can't create an issue in the defect tracker;
+for example: </p>
+
+<blockquote><samp>
+(P4DTI-921X)&nbsp; Migrating job 'job000174'... <br />
+(P4DTI-522X)&nbsp; Can't create Bugzilla bug without component field.
+</samp></blockquote>
+
+<p> The <a href="#config-prepare_issue"><code
+class="source">prepare_issue</code></a> function has failed to meet all
+the defect tracker constraints.  (In the example error, it needs to
+provide a value for the component field, as shown in the example in <a
+href="#section-3.2.2">section 3.2.2</a>.) </p>
+
+</li>
+
+</ul>
+
+
+<h2><a id="section-5" name="section-5">5. Integrating with multiple
+Perforce servers</a></h2>
+
+<p> The <abbr title="Perforce Defect Tracking Integration">P4DTI</abbr>
+can be set up to replicate defects from a single defect tracker to
+multiple Perforce servers.  For example, if you have several development
+groups, each with their own Perforce server, you can set up the P4DTI to
+replicate the issues for each group to the appropriate Perforce
+server. </p>
+
+<p> <strong>Note:</strong> the <abbr title="Perforce Defect Tracking
+Integration">P4DTI</abbr> doesn't support integration between one
+Perforce server and multiple defect tracking servers. </p>
+
+<p> To replicate to multiple Perforce servers: </p>
+
+<ol>
+
+<li><p> Install a copy of the <abbr title="Perforce Defect Tracking
+Integration">P4DTI</abbr> for each Perforce server, as described in <a
+href="http://www.ravenbrook.com/project/p4dti/version/2.4/readme.txt"><code
+class="filename">readme.txt</code></a>. </p></li>
+
+<li><p> Configure each copy of the <abbr title="Perforce Defect Tracking
+Integration">P4DTI</abbr>.  The following configuration parameters must
+be different for each copy: </p>
+
+<ul>
+
+<li><a href="../ag/index.html#config-rid"><code
+class="source">rid</code></a>, so the replicators can distinguish the
+issues they are responsible for. </li>
+
+<li><a href="../ag/index.html#config-sid"><code
+class="source">sid</code></a> and <a
+href="../ag/index.html#config-p4_server_description"><code
+class="source">p4_server_description</code></a>, so the defect tracker
+can report the Perforce server to which the issue is replicated. </li>
+
+<li><a href="../ag/index.html#config-p4_port"><code
+class="source">p4_port</code></a>, so each replicate can find its
+Perforce server.  (If you have different users and passwords on each
+Perforce server, change <a
+href="../ag/index.html#config-p4_user"><code
+class="source">p4_user</code></a> and <a
+href="../ag/index.html#config-p4_password"><code
+class="source">p4_password</code></a> as well). </li>
+
+<li><a href="#config-replicate_p"><code
+class="source">replicate_p</code></a>, so that the replicators don't try
+to replicate the same issues. </li>
+
+<li><a
+href="../ag/index.html#config-changelist_url"><code
+class="source">changelist_url</code></a> and <a
+href="../ag/index.html#config-job_url"><code
+class="source">job_url</code></a> (if you use these features), so that
+the defect tracker can provide links to the correct server to provide
+more information changelists and jobs. </li>
+
+</ul></li>
+
+<li><p> Start and manage each <abbr title="Perforce Defect Tracking
+Integration">P4DTI</abbr> as described in the <cite><a
+href="../ag/index.html">Perforce Defect Tracking
+Integration Administrator's Guide</a></cite>. </p></li>
+
+</ol>
+
+<p> Note that there's no way to move issues from one Perforce server to
+another.  Once an issue is replicated to one Perforce server then
+continues to be replicated to that server, even if it later matches the
+<a href="#config-replicate_p"><code
+class="source">replicate_p</code></a> function for another replicator.
+If it's doubtful which development group is going to work on an issue,
+then you must design your workflow so that issues don't get replicated
+until it's clear who's going to work on them. </p>
+
+<p> For example, you might have a <a href="#config-replicate_p"><code
+class="source">replicate_p</code></a> function like this: </p>
+
+<blockquote><pre class="source">
+def <a href="#config-replicate_p">replicate_p</a>(issue):
+    return (issue["product"] in ["horseshoe", "nail"] and
+            issue["status"] == "ASSIGNED"))
+</pre></blockquote>
+
+<p>so that it will not get replicated while it has status
+"UNCONFIRMED" or "NEW".  In this way you get an opportunity to take a
+decision on the issue and possibly move it to a different
+project. </p>
+
+
+<h3><a id="section-5.1" name="section-5.1">Multiple Perforce server example</a></h3>
+
+<p> You have Perforce servers for your development groups in France
+and Germany and a single Bugzilla server.  products "horseshoe",
+"nail", and "bit" are worked on in France and projects "plough",
+"poker", "buckle" are worked on in Germany.  So set up one <abbr
+title="Perforce Defect Tracking Integration">P4DTI</abbr> copy with
+the following in <code class="filename">config.py</code>: </p>
+
+<blockquote><pre class="source">
+rid = "replicator_fr"
+sid = "france"
+p4_port = "perforce.company.fr:1666"
+p4_server_description = "French development group"
+changelist_url = "http://perforce.company.fr/cgi-bin/perfbrowse?@describe+%d"
+job_url = "http://perforce-company.fr/cgi-bin/perfbrowse?@job+%s"
+def <a href="#config-replicate_p">replicate_p</a>(issue):
+    return issue["product"] in ["horseshoe", "nail", "bit"]
+</pre></blockquote>
+
+<p> and the other with the following: </p>
+
+<blockquote><pre class="source">
+rid = "replicator_de"
+sid = "germany"
+p4_port = "perforce.company.de:1666"
+p4_server_description = "German development group"
+changelist_url = "http://perforce.company.de:8080/%d?ac=10"
+job_url = None
+def <a href="#config-replicate_p">replicate_p</a>(issue):
+    return issue["product"] in ["plough", "poker", "buckle"]
+</pre></blockquote>
+
+
+<h2><a id="section-A" name="section-A">A. References</a></h2>
+
+<table>
+
+<tr valign="top">
+
+  <td>[<a id="ref-GDR-2000-10-16" name="ref-GDR-2000-10-16" href="http://www.ravenbrook.com/project/p4dti/version/2.4/manual/ig/">GDR 2000-10-16</a>]</td>
+
+  <td>
+    "Perforce Defect Tracking Integration Integrator's Guide";
+    <a href="mailto:gdr@ravenbrook.com">Gareth Rees</a>;
+    <a href="http://www.ravenbrook.com/">Ravenbrook Limited</a>;
+    2000-10-16.
+  </td>
+
+</tr>
+
+<tr valign="top">
+
+  <td>[<a id="ref-MySQL-2001" name="ref-MySQL-2001" href="http://www.mysql.com/doc/">MySQL 2001</a>]</td>
+
+  <td>
+    "MySQL Manual";
+    <a href="http://www.mysql.com/">MySQL</a>;
+    2001.
+  </td>
+
+</tr>
+
+<tr valign="top">
+
+  <td>[<a id="ref-NB-2000-11-14a" name="ref-NB-2000-11-14a" href="http://www.ravenbrook.com/project/p4dti/tool/cgi/bugzilla-schema/">NB 2000-11-14a</a>]</td>
+
+  <td>
+    "Bugzilla database schema";
+    <a href="mailto:nb@ravenbrook.com">Nick Barnes</a>;
+    <a href="http://www.ravenbrook.com/">Ravenbrook Limited</a>;
+    2000-11-14.
+  </td>
+
+</tr>
+
+<tr valign="top">
+
+  <td>[<a id="ref-Perforce-2007-05-21b" name="ref-Perforce-2007-05-21b" href="http://www.perforce.com/perforce/doc.072/manuals/p4sag/">Perforce 2007-05-21b</a>]</td>
+
+  <td>
+    "Perforce 2007.2 System Administrator's Guide";
+    <a href="http://www.perforce.com/">Perforce Software</a>;
+    2007-05-21;
+    &lt;<a
+    href="http://www.perforce.com/perforce/doc.072/manuals/p4sag/">http://www.perforce.com/perforce/doc.072/manuals/p4sag/</a>&gt;,
+    &lt;<a
+    href="http://www.perforce.com/perforce/doc.072/manuals/p4sag/p4sag.pdf">http://www.perforce.com/perforce/doc.072/manuals/p4sag/p4sag.pdf</a>&gt;.
+  </td>
+
+</tr>
+
+<tr valign="top">
+
+  <td>[<a id="ref-RB-2000-08-10a" name="ref-RB-2000-08-10a" href="../ag/index.html">RB 2000-08-10a</a>]</td>
+
+  <td>
+    "Perforce Defect Tracking Integration Administrator's Guide";
+    <a href="mailto:rb@ravenbrook.com">Richard Brooksby</a>;
+    <a href="http://www.ravenbrook.com/">Ravenbrook Limited</a>;
+    2000-08-10.
+  </td>
+
+</tr>
+
+</table>
+
+
+<h2><a id="section-B" name="section-B">B. Document History</a></h2>
+
+<table>
+
+<tr valign="top">
+
+  <td>2001-11-14</td>
+
+  <td><a href="mailto:gdr@ravenbrook.com">GDR</a></td>
+
+  <td>Branched from Administrator's Guide.</td>
+
+</tr>
+
+<tr valign="top">
+
+  <td>2001-11-21</td>
+
+  <td><a href="mailto:gdr@ravenbrook.com">GDR</a></td>
+
+  <td>Note the password for migrated Bugzilla users.</td>
+
+</tr>
+
+<tr valign="top">
+
+  <td>2001-11-22</td>
+
+  <td><a href="mailto:gdr@ravenbrook.com">GDR</a></td>
+
+  <td>Documented the need to refresh Perforce jobs after migrating if you want to move to an integrated system.</td>
+
+</tr>
+
+<tr valign="top">
+
+  <td> 2001-11-23 </td>
+
+  <td> <a href="mailto:rb@ravenbrook.com">RB</a> </td>
+
+  <td> Substantial revision, editing for clarity and adding details where necessary.  Devised and added a section giving a plan for installing with migration. </td>
+
+</tr>
+
+<tr valign="top">
+
+  <td>2001-11-25</td>
+
+  <td><a href="mailto:gdr@ravenbrook.com">GDR</a></td>
+
+  <td>Added material on replicating to multiple Perforce servers and on querying the TeamTrack database.</td>
+
+</tr>
+
+<tr valign="top">
+
+  <td>2001-11-27</td>
+
+  <td><a href="mailto:gdr@ravenbrook.com">GDR</a></td>
+
+  <td>Added instructions for setting <a href="#config-migrated_user_groups"><code class="source">migrated_user_groups</code></a> and <a href="#config-migrated_user_password"><code class="source">migrated_user_password</code></a>.  Documented the <code class="command">-s</code> option to the migration script.</td>
+
+</tr>
+
+<tr valign="top">
+
+  <td>2002-01-10</td>
+
+  <td><a href="mailto:gdr@ravenbrook.com">GDR</a></td>
+
+  <td>Noted non-availability of some advanced features in old TeamTrack releases.</td>
+
+</tr>
+
+<tr valign="top">
+
+  <td>2002-02-04</td>
+
+  <td><a href="mailto:gdr@ravenbrook.com">GDR</a></td>
+
+  <td>Explain how to back up and restore databases.  Refer to TeamTrack 5.5 documentation.</td>
+
+</tr>
+
+<tr valign="top">
+
+  <td>2003-05-21</td>
+
+  <td><a href="mailto:nb@ravenbrook.com">NB</a></td>
+
+  <td>de-TeamTrack.</td>
+
+</tr>
+
+<tr valign="top">
+
+  <td>2003-12-17</td>
+
+  <td><a href="mailto:nb@ravenbrook.com">NB</a></td>
+
+  <td>Updated Perforce manual references to 2003.1.</td>
+
+</tr>
+
+<tr valign="top">
+
+  <td>2004-07-06</td>
+
+  <td><a href="mailto:nb@ravenbrook.com">NB</a></td>
+
+  <td>Modify for Bugzilla 2.18 integration.</td>
+
+</tr>
+
+</table>
+
+
+<hr />
+
+<p> <small>This document is copyright &copy; 2001 Perforce Software, Inc.  All rights reserved.</small> </p>
+
+<p> <small>Redistribution and use of this document in any form, with or without modification, is permitted provided that redistributions of this document retain the above copyright notice, this condition and the following disclaimer.</small> </p>
+
+<p> <small> <strong> This document is provided by the copyright holders and contributors "as is" and any express or implied warranties, including, but not limited to, the implied warranties of merchantability and fitness for a particular purpose are disclaimed. In no event shall the copyright holders and contributors be liable for any direct, indirect, incidental, special, exemplary, or consequential damages (including, but not limited to, procurement of substitute goods or services; loss of use, data, or profits; or business interruption) however caused and on any theory of liability, whether in contract, strict liability, or tort (including negligence or otherwise) arising in any way out of the use of this document, even if advised of the possibility of such damage. </strong> </small> </p>
+
+</body>
+
+</html>

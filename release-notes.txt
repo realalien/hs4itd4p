@@ -1,0 +1,1135 @@
+PERFORCE DEFECT TRACKING INTEGRATION RELEASE NOTES FOR RELEASE 2.4.5
+
+Nick Barnes, Ravenbrook Limited
+
+$Date: 2009/05/07 $
+
+
+CONTENTS
+
+  1. Introduction
+  2. Supported configurations
+  3. Getting support
+  4. Project contacts
+  5. What's fixed
+     5.1.   What's fixed in release 2.4.5
+     5.2.   What was fixed in release 2.4.4
+     5.3.   What was fixed in release 2.4.3
+     5.4.   What was fixed in release 2.4.2
+     5.5.   What was fixed in release 2.4.1
+     5.6.   What was fixed in release 2.4.0
+     5.7.   What was fixed in release 2.3.5
+     5.8.   What was fixed in release 2.3.4
+     5.9.   What was fixed in release 2.3.3
+     5.10   What was fixed in release 2.3.2
+     5.11.  What was fixed in release 2.3.1
+     5.12.  What was fixed in release 2.3.0
+     5.13.  What was fixed in release 2.2.2
+     5.14.  What was fixed in release 2.2.1
+     5.15.  What was fixed in release 2.2.0
+     5.16.  What was fixed in release 2.1.2
+     5.17.  What was fixed in release 2.1.1
+     5.18.  What was fixed in release 2.1.0
+     5.19.  What was fixed in releases up to 2.0.0
+  A. References
+  B. Document history
+  C. Copyright and license
+
+
+1. INTRODUCTION
+
+These are the release notes for release 2.4.5 of the Perforce Defect
+Tracking Integration (P4DTI).
+
+The P4DTI connects your defect tracking system to Perforce, so that you
+don't have to switch between them and enter duplicate information about
+your work.  It also links changes made in Perforce with defect tracker
+issues, making it easy to find out why a change was made, find the work
+that was done to resolve an issue, or generate reports relating issues
+to files or codelines.
+
+For instructions on installing the P4DTI, see the product readme
+(readme.txt).
+
+For up-to-date information about releases of the P4DTI, see the product
+information page <http://www.perforce.com/perforce/products/p4dti.html>.
+From there you will find links to the latest releases, including
+reports of defects found.
+
+If you want to adapt or extend the P4DTI, please go to the product
+information page <http://www.perforce.com/perforce/products/p4dti.html>
+and download the Integration Kit.  It contains full source code and
+documentation to help you.
+
+The readership of this document is anyone who wants to download and use
+the Perforce Defect Tracking Integration.
+
+This document is not confidential.
+
+
+2. SUPPORTED CONFIGURATIONS
+
+Perforce versions:
+
+  - between 2000.2 and 2008.2 inclusive, on any platform;
+
+The Bugzilla for Unix integration supports:
+
+  - Bugzilla 2.22.7 or 3.0.8 on Red Hat Linux or Solaris, storing the
+    data in MySQL 4.0.26 or later;
+
+  - Python 2.0, or later;
+
+  - Running the P4DTI replicator on any Unix.
+
+Use of Bugzilla 2.22.2 or 3.0 on Red Hat Linux or Solaris is also
+supported, but is deprecated: support may be dropped in a future
+version of the P4DTI.
+
+Note that although the Bugzilla integration runs on a variety of Unix
+operating systems, we've only tested it on FreeBSD 6.2 and Fedora Core
+6.  Also note that the P4DTI will not be able to cause Bugzilla to
+send email reporting bug changes unless it is running on the same
+machine as Bugzilla itself.
+
+The Bugzilla for Windows integration supports:
+
+  - Bugzilla 2.22.7 or 3.0.8 on Windows NT4 or Windows 2000;
+
+  - Python 2.0 or later with Win32 plug-ins;
+
+  - Running the P4DTI replicator on Windows NT 4 or Windows 2000.
+
+Use of Bugzilla 2.22.2 or 3.0 on Windows is also supported, but is
+deprecated: support may be dropped in a future version of the P4DTI.
+
+Integration with TeamShare's TeamTrack is no longer supported by
+Perforce Software, or by this software.  An integration is available
+from TeamShare.  Contact TeamShare support by writing to
+<support@teamshare.com> or see the TeamShare web site at
+<http://www.teamshare.com/> for further information.
+
+
+3. GETTING SUPPORT
+
+For problems relating to Perforce or the P4DTI in general, contact
+Perforce Support by writing to <support@perforce.com> or see the
+technical support page at
+<http://www.perforce.com/perforce/support.html> for contact information.
+
+Bugzilla is a community supported project.  See
+<http://www.bugzilla.org/support>.
+
+
+4. PROJECT CONTACTS
+
+You may want to join the p4dti-discussion mailing list. The goals of the
+list are:
+
+  1. to provide feedback to the project on requirements, design,
+implementation, etc.;
+
+  2. to allow people to exchange information and experience with using
+and adapting the project;
+
+  3. to keep people informed about project progress.
+
+To join, send a message with the word "subscribe" in the _body_ to
+<p4dti-discussion-request@ravenbrook.com> or send the word "help" for
+general information.
+
+Please note that the mailing list will be archived and the archive may
+be published.
+
+
+5. WHAT'S FIXED
+
+This section lists defects that have been fixed.
+
+
+5.1. WHAT'S FIXED IN RELEASE 2.4.5
+
+
+ESSENTIAL
+
+job002109: non-ASCII on non-Unicode Perforce server breaks replicator
+
+When non-ASCII characters are stored on a non-Unicode Perforce server
+(e.g. by users entering them in a changelist description) the P4DTI
+replicator doesn't know how to interpret them.  They are treated as raw
+binary and then break when encoding as (e.g.) Latin-1 or ASCII.
+
+
+5.2. WHAT WAS FIXED IN RELEASE 2.4.4
+
+
+ESSENTIAL
+
+job002084: P4DTI does no MySQL version detection
+
+Some aspects of P4DTI Bugzilla operation depend on particular versions
+of MySQL.  For instance, Unicode character set support was introduced
+with MySQL 4.1.  Some more recent versions of MySQL are experimental or
+beta releases and are not supported.  The P4DTI does not detect the
+current version of MySQL, so cannot warn if the version is unsupported
+or deprecated.
+
+
+job002085: P4DTI doesn't check MySQL configured for Unicode
+
+Bugzilla supports Unicode data, encoded as UTF-8 in MySQL, and since
+Bugzilla 2.22 new installations are always UTF-8 encoded.  Since P4DTI
+2.4.3 we replicate data as Unicode.  However, it is possible to run
+Bugzilla in a non-Unicode mode (for instance, with legacy data from
+before Bugzilla 2.22).  If MySQL is in that mode (e.g. if it has latin1
+"character set" - i.e. encoding - on Bugzilla tables and columns) then
+Unicode replication will fail.  The P4DTI should detect that mode and
+warn that Unicode replication will fail.
+
+
+job002086: Perforce server Unicode mode detection inadequate
+
+The P4DTI attempts to discover whether the Perforce server is running in
+Unicode mode, so that it can invoke the Perforce client appropriately
+(i.e. with "-C utf8").  This detection is flawed: if running with a
+P4CHARSET setting (in the environment, registry, or config file), the
+attempt to contact a Unicode Perforce sever with no -C switch will
+succeed, and the P4DTI will decide that the server is not in Unicode
+mode.
+
+
+job002087: Administrative emails can fail with Unicode data
+
+If the P4DTI has to send an email message regarding a problem
+encountered while replicating a defect record, and the email message
+contains Unicode data in particular locations, the email attempt can
+fail.
+
+
+job002088: P4DTI automated testing with Unicode data is poor
+
+The P4DTI now replicates Unicode data satisfactorily, but the automated
+testing of this feature is inadequate: only testing operation with and
+without Unicode-mode Perforce servers.
+
+
+5.3. WHAT WAS FIXED IN RELEASE 2.4.3
+
+
+ESSENTIAL
+
+job002051: MySQLdb version testing doesn't check for unicode support
+
+When the replicator starts up, it checks the version of the Python MySQL
+interface module.  ASCII-only P4DTI operation is fine with versions
+after 0.2.2, but Unicode support is only developed fully in later
+versions, and ideally  needs version 1.2.1 or later.  We should check
+for this in particular and issue an appropriate warning.
+
+
+job002052: Can't output Unicode content in log messages
+
+If we have Unicode data from either Bugzilla or Perforce, the replicator
+is unable to log it to the P4DTI log file, the Windows event log, or the
+Linux/Unix system log, because those systems expect ASCII/8-bit log
+messages.
+
+
+job002053: Unicode replication fails
+
+Both Bugzilla and Perforce can store Unicode issue data, but the P4DTI
+replicator fails when attempting to replicate such data between the two
+systems.
+
+
+OPTIONAL
+
+job002054: recent Bugzilla minor releases not officially supported
+
+There have been a number of minor Bugzilla releases since the last P4DTI
+release.  Recent minor releases include 3.0.8 and 2.22.7.  The P4DTI
+works with these releases, using the patches for corresponding older
+releases (3.0 and 2.22.2), but does not document this fact.  A new P4DTI
+release should document this support.
+
+
+job002055: Unnecessary warnings during user and issue migration
+
+Recent versions of MySQL will produce warnings when creating Bugzilla
+bugs or users from Perforce jobs or users using the migration support in
+the P4DTI.  This is because the Bugzilla schema has changed such that
+some fields which are not explicitly set do not have default values
+(profiles.disabledtext and bugs.delta_ts).
+
+
+5.4. WHAT WAS FIXED IN RELEASE 2.4.2
+
+
+ESSENTIAL
+
+job001713: Manuals refer to out-of-date Perforce docs
+
+The various P4DTI manuals (AG, AAG, IG, UG) refer to Perforce
+documentation (the Perforce UG, SAG, etc).  These references are to the
+2005.2 documentation set, and should be to the 2007.2 set.
+
+
+OPTIONAL
+
+job001712: AG patch description is incomplete
+
+The Administrator's Guide lists the files modified by the Bugzilla
+patches which ship with the P4DTI.  This list omits the file
+template/en/default/admin/params/core.html.tmpl.
+
+
+5.5. WHAT WAS FIXED IN RELEASE 2.4.1
+
+
+CRITICAL
+
+job001704: Schema upgrades break replicator
+
+P4DTI 2.4.0 changed the schema of a MySQL table used for recording
+replications.  The code to update the schema when running the replicator
+against an older database has a typo and breaks with a Python error.
+
+
+ESSENTIAL
+
+job001705: AG has incorrect MySQL version numbers
+
+The P4DTI Administrator's Guide has out-of-date information on the
+supported versions of MySQL.
+
+
+5.6. WHAT WAS FIXED IN RELEASE 2.4.0
+
+
+CRITICAL
+
+job001691: new Bugzilla parameter access breaks P4DTI patch
+
+Making any change to the parameters of a patched Bugzilla 3.0, or
+running checksetup.pl, generates a Perl error at line 316 of
+Bugzilla/Config.pm.  The P4DTI Bugzilla patch needs modification to
+adapt to changed parameter data access in Bugzilla 3.0.
+
+
+ESSENTIAL
+
+job001689: Bugzilla 3.0 not supported
+
+Bugzilla 3.0 was released on 2007-05-09. The P4DTI needs to support it.
+
+
+job001690: Update set of supported Bugzilla releases
+
+P4DTI 2.3.5 supports some versions of Bugzilla which are now long
+obsolete.  These should be replaced with current versions.  We need to
+support (but can deprecate) all the versions not deprecated in the last
+release.  But older versions can go.  So we should remove 2.18.4,
+2.18.5, and 2.20, and replace with 2.20.4, 2.22.2, and 3.0.
+
+
+job001692: Bugzilla 3.0 not recognised by P4DTI replicator
+
+Running the P4DTI replicator against Bugzilla 3.0 results in a warning
+message because the replicator doesn't recognise the Bugzilla schema.
+
+
+job001693: Single-select custom fields not replicated correctly
+
+Bugzilla 3.0 introduces single-select (drop-down) custom fields.  These
+need to be replicated as SELECT type fields in jobs.  Currently the
+replicator notices the fields but just treats them as free-text.
+
+
+job001694: Bad names for custom fields
+
+When replicating Bugzilla custom fields, we need to get a meaningful
+field name for the jobspec.  We should use the field's "Description"
+(from the Bugzilla database), modified if necessary to make it
+acceptable as a Perforce job field name.
+
+
+job001695: Perforce section not appearing in Bugzilla 3.0 bug form
+
+The "Perforce" section on the bug form isn't appearing in Bugzilla 3.0,
+although the template file is in place and the P4DTI switch is on.  It
+turns out that template extension "hooks" have moved from
+template/en/extension to extensions/*/template/en
+
+
+job001696: Recent MySQLdb releases not supported
+
+MySQLdb (the Python interface to MySQL) has some new releases, after a
+long period of quiescence.  These new releases - 1.2.1, 1.2.1_p2, 1.2.2
+- are currently unsupported by the P4DTI.  We need to test against them
+and support them.
+
+
+job001697: MySQL 5.0 breaks P4DTI
+
+The SQL syntax understood by MySQL changes between MySQL 4.x and MySQL
+5.x.  In particular, it is now sensitive to the order of tables in a
+LEFT JOIN statement (SELECT ... FROM a, b LEFT JOIN c ... is now
+different from SELECT ... FROM b, a LEFT JOIN c ...).  A couple of SQL
+queries made by the P4DTI (one in the replicator, one in the Bugzilla
+patch) fall foul of this change.
+
+
+job001698: Bugzilla field name change breaks P4DTI
+
+Bugzilla 3.0 renames a field from fielddefs.fieldid to fielddefs.id.
+This breaks the integration when replicating changes to a job into a
+bug.
+
+
+job001699: MySQL 5.0 doesn't like 0 in datetime fields
+
+The P4DTI replicator keeps a table of past replication polls in the
+Bugzilla database.  The columns in this table include an 'end time'.
+When a replication poll is started, this column is set to zero, which
+can then distinguish replications which fail to complete.  MySQL 5.0
+generates a warning message on setting a datetime field to zero.
+
+
+OPTIONAL
+
+job001700: MySQL 5.0 complains at non-default fields
+
+The Bugzilla 3.0 schema has a couple of fields in the bugs table which
+are not null but have no default value: keywords and status_whiteboard.
+When inserting a row into this table, if no value is provided then MySQL
+5.0 complains.
+
+
+5.7. WHAT WAS FIXED IN RELEASE 2.3.5
+
+
+ESSENTIAL
+
+job001468: refresh.py doesn't work with Perforce 2006.1
+
+  The P4DTI refresh.py script fails when run against Perforce 2006.1
+fails.  When refreshing jobs from the defect tracker, it attempts to set
+all the fields of each job, including the 'Date' field.  This field is
+an 'always' field, and Perforce 2006.1 changed the semantics of "p4 job
+-i" such that the read-only nature of 'always' fields is enforced unless
+the "-f" flag is used.  The P4DTI does not use the "-f" flag, and so the
+refresh procedure fails.
+
+
+job001469: Python Windows extensions requirement not documented
+
+The P4DTI running on Windows will fail in a variety of circumstances if
+the Python Windows extensions are not installed.  The documentation says
+that the extensions are only required to write to the Windows Event Log
+or to run as a Windows Service.  This has not been true since P4DTI
+2.1.0, when the P4DTI started to require the extensions in order to
+support the Perforce configuration file (p4_config) functionality.
+
+
+5.8. WHAT WAS FIXED IN RELEASE 2.3.4
+
+
+ESSENTIAL
+
+job001439: Bugzilla/DB/Mysql.pm patch not mentioned in AG
+
+A file is missing from the table of patched files in the Administrator's
+Guide.  In Bugzilla 2.22, there is a bug (Bugzilla bug 341374) in the
+way that checksetup handles non-empty databases at installation time.
+This bug is triggered by the P4DTI test suite.  Our Bugzilla 2.22 patch
+includes a tiny change to Bugzilla/DB/Mysql.pm to fix this bug.  That is
+not mentioned in the AG.
+
+
+job001440: Windows patches have bad line-endings
+
+The patches for Bugzilla in the Windows P4DTI packages are broken: they
+have CR/LF line endings in the diff content but LF-only endings in the
+diff headers.
+
+
+job001441: process_bug.cgi fails in Bugzilla/Util.pm
+
+Perforce support report problems with Bugzilla 2.22 after the patch
+provided with P4DTI 2.3.3 is applied.  Making a change to a bug from the
+web interface causes process_bug.cgi to fail with this message: "undef
+error - Undefined subroutine &Bugzilla::Util::Param called at
+Bugzilla/Util.pm line 272."  This has not been reproduced at Ravenbrook.
+
+
+job001442: Mysql.pm patch for Bugzilla 2.22 not approved by Bugzilla
+
+The P4DTI 2.3.3 patch for Bugzilla 2.22 included a one-line change to
+Mysql.pm.  This change addresses Bugzilla bug 341374.  There is now an
+approved patch for that bug, which should be used instead.
+
+
+5.9. WHAT WAS FIXED IN RELEASE 2.3.3
+
+
+ESSENTIAL
+
+job001433: Bugzilla 2.22 not supported
+
+Bugzilla 2.22 was released on 2006-04-23.  The P4DTI must be changed to
+support it.
+
+
+5.10. WHAT WAS FIXED IN RELEASE 2.3.2
+
+
+CRITICAL
+
+job001342: refresh.py doesn't work with p4d 2005.2
+
+The refresh.py script doesn't work with p4d 2005.2: the jobs are
+refreshed but the logger counter is not updated correctly.
+
+
+5.11. WHAT WAS FIXED IN RELEASE 2.3.1
+
+
+ESSENTIAL
+
+job001268: Component version documentation/testing is out-of-date
+
+The P4DTI depends on various third-party components: Python,
+MySQL-Python, Python windows extensions.  These dependencies are
+documented in the release notes and in the Administrator's Guide.  The
+documentation notes specific versions of these components, and some of
+these versions are tested when the replicator starts (MySQL-Python, at
+least).  This needs updating to reflect current versions.
+
+
+job001272: Manuals refer to old Perforce documentation
+
+The P4DTI manuals link to online Perforce documentation in various
+places.  All these references should be to the current documentation
+(2005.1 at the time of writing).  Most of them are but some appear to
+still refer to older documents (e.g. 2004.2).
+
+
+5.12. WHAT WAS FIXED IN RELEASE 2.3.0
+
+
+ESSENTIAL
+
+job000460: P4DTI not known to support unicode
+
+Perforce 2002.1 has a unicode mode, in which files of type "unicode",
+and all metadata, are stored in UTF-8.  Then this UTF-8 data is
+translated to and from the client character set on every access.  The
+P4DTI has not been tested in this mode, and we don't know whether this
+works.
+
+
+job000975: User guide does not mention P4V
+
+P4V, The Perforce Visual Client, was not available when p4dti was
+created.  Now it is (and has been for a while).  The User Guide should
+explain how to use it carry out the procedures documented in the User
+Guide.
+
+
+job001258: Bugzilla 'deadline' field not replicated.
+
+Bugzilla 2.20 introduces a new time-tracking field called 'deadline'.
+The P4DTI can replicate this field, but doesn't do so very well (e.g.
+field name, comments are not good).
+
+
+job001259: P4DTI can't handle new Bugzilla 'enum' tables
+
+The P4DTI doesn't correctly figure out Perforce jobspec field
+specifications for the new implementation of Bugzilla 'enum' fields.
+Bugzilla used to support these fields with MySQL's 'enum' column type.
+Bugzilla 2.19.3 and later versions stop this (because it's not portable
+SQL), and instead have a separate table in the database for each such
+field, enumerating the possible values.  The P4DTI doesn't know this, so
+provides a jobspec field specification of type 'text'.
+
+
+job001260: P4DTI can't handle null fields in Bugzilla
+
+Bugzilla now (2.20) has some 'null' columns in the bugs table (i.e.
+fields which are allowed to have a null value).  For instance, the
+qa_contact field can be null.  These fields are not properly set in
+Bugzilla when replicating or creating a new bug (the qa_contact field is
+set from the initial_qacontact field in the components table, which may
+also be null).
+
+
+job001261: test suite breaks MySQL on Windows
+
+The P4DTI test suite invokes the MySQL command-line client on Windows in
+a way which doesn't reliably work.  We say 'mysql -u "<user>"
+"<database>" -e "<command>"', but for some values of the command this
+mysteriously fails.  Found by reading the logs of a test suite run.
+
+
+job001263: P4DTI doesn't support Bugzilla 2.20.
+
+Bugzilla 2.20 was released on 2005-10-01.  The P4DTI must be extended to
+work with it.
+
+
+OPTIONAL
+
+job001262: test suite doesn't work with Bugzilla 2.20 checksetup on
+Windows
+
+Bugzilla includes a script called "checksetup" used when creating or
+upgrading a Bugzilla installation.  The P4DTI test suite runs this
+script to set up and tear down test Bugzillas.  It doesn't work with
+Bugzilla 2.20 on Windows because the set of prompts used by checksetup
+to get information has changed.
+
+
+job001264: Obsolete Bugzilla versions still supported
+
+Our Bugzilla version support needs to be updated to reflect current
+usage.  Supporting really old versions is expensive (in testing) and
+pointless (because users generally upgrade fairly promptly).
+
+
+5.13. WHAT WAS FIXED IN RELEASE 2.2.2
+
+
+ESSENTIAL
+
+job001128: Bugzilla 2.18 patch removes some documentation
+
+The P4DTI 2.2.1 release includes a patch file for Bugzilla 2.18.
+Applying this patch removes all the contents from several documentation
+files.
+
+
+5.14. WHAT WAS FIXED IN RELEASE 2.2.1
+
+
+CRITICAL
+
+job001081: Bugzilla bug email not working
+
+P4DTI 2.2.0 can't send Bugzilla's bug email with Bugzilla 2.18rc1/2/3.
+It generates the message "Can't locate Bugzilla/BugMail.pm in @INC".
+
+
+ESSENTIAL
+
+job000990: no Bugzilla 2.18 patch in P4DTI for Windows
+
+The P4DTI for Windows (p4dti-bugzilla-2.2.0.zip and
+p4dti-bugzilla-2.2.0.exe) only has a patch for Bugzilla 2.14.5.  It
+should also include a patch for Bugzilla 2.18, which is supported on
+Windows.
+
+
+job000991: Bugzilla patch breaks editparams on Bugzilla 2.18rc2
+
+Applying the P4DTI Bugzilla patch breaks the Bugzilla user interface
+(for Bugzilla versions from 2.17.7 onwards) until the next time the
+checksetup.pl Bugzilla script is run.  In particular, the editparams.cgi
+script is broken, and generates the message "No value for param p4dti
+(try running checksetup.pl again) at Bugzilla/Config.pm line 161.".
+Running the checksetup.pl script again fixes the problem.
+
+
+job001098: Python 2.4 breaks p4.py
+
+Python 2.4 has recently been released.  Running the P4DTI under Python
+2.4 causes errors when invoking the Perforce client, usually of the form
+"Unknown field name".
+
+
+job001119: Can't run as Windows Service with Python 2.4
+
+The P4DTI is able to run as a Windows Service, using some of the Win32
+extensions to Python.  These extensions have changed in Python 2.4, in
+such a way that the P4DTI Windows Service cannot be started.
+
+
+job001121: P4DTI doesn't support Bugzilla 2.16.7.
+
+Bugzilla 2.16.7 was released on 2004-10-24.  The P4DTI needs to support
+this release.
+
+
+job001123: No Bugzilla 2.18 support
+
+Bugzilla 2.18 was finally released on 2005-01-15.  The P4DTI needs to
+support it.
+
+
+job001124: P4DTI doesn't support Bugzilla 2.16.8.
+
+Bugzilla 2.16.8 was released on 2005-01-15.  The P4DTI needs to support
+this release.
+
+
+OPTIONAL
+
+job001083: Bugzilla 2.18rc3 schema not recognised
+
+Running P4DTI release 2.2.0 with Bugzilla 2.18rc3 fails to recognise the
+Bugzilla version, and generates a warning message saying "The P4DTI may
+fail to operate correctly."  In fact it works fine; the Bugzilla version
+detection code needs to be brought up to date.
+
+
+job001120: Bugzilla schema documentation doesn't cover recent versions
+
+The Bugzilla schema documentation written for the P4DTI misses some
+information (foreign key fields), omits some recent versions, and
+includes various out-dated text.
+
+
+job001122: P4DTI not tested against Bugzilla 2.18rc3.
+
+Bugzilla 2.18rc3 was released on 2004-10-24, as the latest approximation
+to the forthcoming Bugzilla 2.18 release, which we will support.  Many
+users will update to 2.18rc3; we should work with it if we can.
+
+
+5.15. WHAT WAS FIXED IN RELEASE 2.2.0
+
+
+ESSENTIAL
+
+job000764: Test suite fails with Bugzilla versions 2.16.1 to 2.16.3
+
+Some tests fail with after emitting the error 'Too late for "-T"
+option'.
+
+
+job000907: UG makes incorrect statements about p4 change "-s" option
+
+The User Guide states that a list of jobs is only presented in a "p4
+change" or "p4 submit" form when the "-s" option is given.  This is
+incorrect: the list of jobs is always presented (if the user has a
+jobview).  The "-s" option actually causes a status of "ignore" to be
+put next to each job (where it can be edited to an actual status).
+
+
+job000948: New Bugzilla groups system not supported
+
+The 2.17.x development releases of Bugzilla have a table-driven groups
+system, replacing the existing "bitset" groups.  The P4DTI will need to
+support this system once the stable Bugzilla 2.18 has been released.
+Note that the same P4DTI versions will need to support either table
+groups (2.18 +) or bitset groups (2.16.x).
+
+
+job000949: Can't handle new Bugzilla product and component tables
+
+Replicating product or component fields from Bugzilla 2.18 will not work
+because of a Bugzilla database schema change.
+
+
+job000950: Bugzilla integration too slow
+
+Integrating with Bugzilla 2.17.x or 2.18 involves more database access
+than earlier integrations (e.g. groups tables, product and components
+tables).  When running some stress tests the integration appeared very
+slow.
+
+
+job000951: Bugzilla bugmail doesn't work any more
+
+Bugzilla 2.17.x doesn't have the "processmail" script used by the P4DTI
+to send bugmail when bugs change.
+
+
+job000952: New Bugzilla permissions rules not followed
+
+Bugzilla 2.17.x and 2.18.x have new rules for deciding whether a given
+user may make a particular change to a particular bug.  The P4DTI must
+enforce the same rules as the version of Bugzilla with which it is
+running.
+
+
+job000953: No support for Bugzilla's new per-product group controls
+
+Bugzilla 2.17.3 introduces per-product group controls, allowing an
+administrator to specify which groups a bug should (or must) belong to
+based on its product, and also which groups a user must be in to create
+a bug in a given product.
+
+
+job000957: Test suite doesn't handle recent Bugzilla releases
+
+The P4DTI test suite runs some Bugzilla code as part of testing the
+Bugzilla integration.  Some of the ways in which it invokes this code,
+and some of the assumptions it makes about the results, are not valid
+for Bugzilla 2.17.x (and will not be valid for Bugzilla 2.18).
+
+
+job000958: Bugzilla schema doc is out of date
+
+The P4DTI design documentation includes a document [1] describing the
+Bugzilla database schema.  This document is considerably out of date:
+among other things it doesn't describe the new groups system in bugzilla
+2.17.x, or the tables controlling flags and charts.  This needs to be
+up-to-date and accurate for us to rewrite the P4DTI Bugzilla interface
+based upon it.
+
+
+job000960: P4DTI doesn't support Bugzilla 2.16.5
+
+Bugzilla 2.16.5 was released on 2004-03-03 as the latest security patch
+release in the stable 2.16.x series.  The latest P4DTI release (2.1.2)
+supports various Bugzilla releases including 2.16.4; the next P4DTI
+release should support Bugzilla 2.16.5.
+
+
+job000961: P4DTI doesn't support Bugzilla 2.16.6
+
+Bugzilla 2.16.6 was released on 2004-07-10 as the latest, and probably
+last, security patch release in the stable 2.16.x series.  The latest
+P4DTI release (2.1.2) supports various Bugzilla releases including
+2.16.4; the next P4DTI release should support Bugzilla 2.16.5 and
+2.16.6.
+
+
+job000963: P4DTI does not support Bugzilla 2.18
+
+The Bugzilla project is planning to release Bugzilla 2.18 during 2004.
+This will be the first new stable version of Bugzilla since 2.16 on
+2002-07-28.  The P4DTI must support integration with Bugzilla 2.18.
+Bugzilla 2.18 is also intended to run on Windows (making this the first
+supported Windows release since 2.14.5 on 2003-01-02), and we must
+support it there.
+
+
+job000964: Bugzilla emails give incorrect values for user fields
+
+Bugzilla sends email to affected users when a bug changes.  This email
+describes the change: stating which fields in the bug have changed and
+giving old and new values.  If the change is to a user field (e.g.
+"assigned_to" or "qacontact"), the old and new values should appear as
+the Bugzilla logins (email addresses) of the users in question.
+However, if the bug is changed by the P4DTI replicator, these values
+appear as numeric user IDs instead.
+
+
+job000965: User Guide is out-of-date about Perforce interfaces
+
+The P4DTI user guide has instructions for achieving various job-related
+tasks using different Perforce interfaces (command-line, p4win, p4web).
+These instructions were largely based on P4 2001.1 (the current release
+when the user guide was originally written).  Some of the instructions
+are now out of date; some other tasks are now possible in a given
+interface when they were not before.
+
+
+job000968: Interactions with Perforce ticket system not documented
+
+The AG has no information or advice on using the P4DTI with Perforce
+"tickets" (e.g. to allow a Perforce server security level of 3).
+
+
+job000971: No P4DTI section when Bz 2.17+ bug is "formatted for
+printing"
+
+The P4DTI adds a section to the bug display to show Perforce information
+relating to a bug (e.g. bug fixes).   This section is displayed in the
+regular Bugzilla bug display but not when a bug is "formatted for
+printing" (either on its own or as part of a long list).  This job is
+specific to Bugzilla 2.17+ because the cause and symptom are different
+there from on earlier versions of Bugzilla (up to 2.16.6): see also
+job000956.
+
+
+job000985: MySQLdb 1.0.0 not supported
+
+Release 1.0.0 of the MySQLdb Python module is now available, and must be
+supported by the P4DTI.
+
+
+OPTIONAL
+
+job000955: P4DTI section not using Bugzilla template hooks
+
+The user interface in Bugzilla is templatized (since Bugzilla 2.16).
+Since Bugzilla 2.17.7, the template system includes "hooks", allowing
+site-specific sections to be included in the user interface.  Using such
+a hook for the P4DTI would reduce the size and complexity of the
+Bugzilla patch needed by the P4DTI.
+
+
+job000959: P4DTI doesn't work with Bugzilla 2.17.x
+
+The Bugzilla 2.17.x series of releases are "development versions", and
+the P4DTI is not intended to support them.  However, the development of
+that series will eventually result in a stable release (Bugzilla 2.18),
+and the P4DTI must support that release.  In the meantime several users
+have requested integration with Bugzilla 2.17.x releases, especially
+2.17.7, which is fairly stable and probably the last 2.17.x release.
+
+
+job000962: P4DTI doesn't work with Bugzilla 2.18rc1
+
+The Bugzilla team have release Bugzilla 2.18rc1 [1], a "release
+candidate" for the forthcoming Bugzilla 2.18.  The P4DTI must support
+Bugzilla 2.18, and the best way to ensure this support arrives soon
+after the Bugzilla 2.18 release itself is to make the integration work
+with 2.18rc1.  Such operation need not be supported by a P4DTI release.
+
+
+job000984: P4DTI doesn't work with Bugzilla 2.18rc2
+
+The Bugzilla team have release Bugzilla 2.18rc2 [1], the second "release
+candidate" for the forthcoming Bugzilla 2.18.  The P4DTI must support
+Bugzilla 2.18, and the best way to ensure this support arrives soon
+after the Bugzilla 2.18 release itself is to make the integration work
+with 2.18rc2.  Such operation need not be supported by a P4DTI release.
+
+
+5.16. WHAT WAS FIXED IN RELEASE 2.1.2
+
+
+CRITICAL
+
+job000842: Python 2.3 or 2.3.x breaks Bugzilla integration
+
+Under Python 2.3 or 2.3.x, the Bugzilla integration fails with this
+message: "Bugzilla database error: (P4DTI-1058)  Given 'True' when
+expecting a string or integer."
+
+
+ESSENTIAL
+
+job000841: Test suite warnings with Python 2.3
+
+When running the P4DTI test suite under Python 2.3, two
+DeprecationWarning messages are generated.
+
+
+5.17. WHAT WAS FIXED IN RELEASE 2.1.1
+
+
+ESSENTIAL
+
+job000837: P4DTI manuals refer to out-of-date Perforce documentation
+
+The P4DTI manuals refer to Perforce 2001.1 documentation, instead of
+2003.1 versions.
+
+
+job000838: P4DTI can't replicate 'user' fields.
+
+Some Bugzilla fields (e.g. 'reporter' 'qa_contact') are user
+identifiers, which should be replicated as Perforce user names.  If the
+P4DTI  2.1.0 replicator is set to replicate one of these, it fails on
+startup with the message "NameError: global name 'user_name_length'     is
+not defined".
+
+
+job000839: AG "Table of Commands" omits jobspec commands
+
+P4DTI version 2.1 adds some new commands, "python check_jobspec.py" and
+"python extend_jobspec.py".  These were not included in the "Table of
+Commands" (Appendix D) of the Administrator's Guide in P4DTI 2.1.0.
+
+
+5.18. WHAT WAS FIXED IN RELEASE 2.1.0
+
+
+ESSENTIAL
+
+job000624: Licence still says copyright 2001.
+
+The licence attached to the P4DTI sources says "copyright 2001", but
+probably ought to say "copyright 2001-2003" (shortly).  I am not a
+lawyer.
+
+
+job000699: P4DTI doesn't allow customizable jobspec
+
+The P4DTI completely takes over the Perforce jobspec, in a very
+constrained way.  The jobspec is entirely determined by the
+replicated_fields configuration item.  Users want [1] to be able to
+customize this jobspec, at the very least to be able to rename and
+reorder the replicated fields.  Ideally they want to be able to set
+their own jobspec, and prepare it for the P4DTI by adding some fields
+but not otherwise modifying it.  This is requirement 122.
+
+
+job000700: Perforce user password is disclosed on command line
+
+When the P4DTI issues Perforce commands, it does so by issuing a system
+command including all relevant options on the command line, including
+the password with -P.  The command line can be obtained with various
+system tools such as 'ps', so other users on the system can readily
+obtain the P4DTI Perforce user's password.
+
+
+job000704: Bugzilla fixes table shows the fixer, not the changer
+
+The patched Bugzilla bug form has a fixes table showing Perforce fixes
+for the bug. The table has one row per fix record, showing the
+changelist number, date, description, and user.  The "user" column shows
+the user who made the fix record, not the user who made the change.
+This is counter-intuitive, not very useful, and contrary to the P4DTI
+documentation, in particular the IG [1].
+
+
+job000754: AG says that MySQL doc link is for MySQL 4.1.0-alpha
+
+       The Administrator's Guide has a link (in section 3.3) to the
+MySQL documentation.  This link is to the permanent home of the current
+MySQL documentation, but in the AG the linked text is "MySQL Reference
+Manual for version 4.1.0-alpha".  This will date.
+
+
+job000755: config.py still has TeamTrack section
+
+config.py still has a TeamTrack section, although TeamTrack integration
+is no longer supported.
+
+
+job000756: MySQL privilege required and not documented
+
+Some versions of MySQL have a new privilege: Lock_table_priv.  This is
+required by the P4DTI MySQL user (the P4DTI replicator locks tables
+during polls).  This requirement is not documented in the AG.
+
+
+job000792: Can't detect Bugzilla versions since 2.16
+
+The P4DTI Bugzilla integration has code to detect Bugzilla versions from
+2.0 up to 2.16, and then uses this information to decide support status.
+This code will not work correctly on Bugzilla databases since 2.16.x, so
+the P4DTI can't even detect versions of Bugzilla since 2.16.x.
+
+
+job000811: P4DTI doesn't work with Perforce 2003.2beta
+
+Perforce 2003.2beta has a new format for the output of "p4 -G info", in
+which each information line is tagged (like p4 -ztag output).  The P4DTI
+uses "p4 -G info" to determine the Perforce server features (using the
+server changelevel).  It isn't expecting the 2003.2beta format, and does
+not accept it.
+
+
+job000827: P4DTI test suite with PyXML 0.8.3 fails without XHTML DTD
+file
+
+The P4DTI test suite uses Python's XML libraries and PyXML extensions to
+check the XHTML documentation which forms part of the P4DTI product
+sources (e.g. manuals, design documents, etc).  When used with PyXML
+0.8.3 (unlike PyXML 0.7.x), this part of the test suite fails because it
+can't the XHTML DTD named in the doctype element.
+
+
+job000829: Some messages listed in the AG can never appear.
+
+There are a number of P4DTI error messages in the AG which are obsolete
+(marked as NOT_USED in the message catalog).  These should be removed.
+
+
+job000830: No way to check the jobspec
+
+The P4DTI requires a Perforce jobspec with various important properties:
+P4DTI fields with certain specifications, replicated fields of
+particular types, etc.  But there is no way at present to check whether
+the jobspec has those properties.  There should be a script.  See also
+job000699 (configurable jobspec): being able to check the jobspec is
+important when the jobspec is not in the control of the P4DTI.  Also
+job000831 (extend jobspec): we need to be able to fix problems found
+when checking the jobspec without completely discarding it.
+
+
+job000831: No way to just extend the jobspec
+
+The P4DTI overwrites the jobspec with one based on the configuration
+(replicated_fields, etc).  This prevents the use of additional,
+non-replicated fields in the jobspec.  The P4DTI should instead extend
+the jobspec, by adding the fields which it requires.  Optionally, such
+extension could change the specification of a field if it is not correct
+for the P4DTI.  And administrators should be able to just extend the
+jobspec, independently of running the replicator, so that they can see
+the results before committing themselves.  See also job000699
+(configurable jobspec): being able to add P4DTI-required fields to a
+user's existing jobspec is an important part of this.  And this can be
+combined with job000830 (check jobspec): first check_jobspec, then fix
+any problems either manually or with extend_jobspec.
+
+
+job000833: Bugzilla 2.16.4 not supported.
+
+The P4DTI does not support Bugzilla 2.16.4 (released on 2003-11-03).
+
+
+OPTIONAL
+
+job000828: "licence" should read "license"
+
+In various places in the P4DTI sources, test suite, manuals, and other
+materials, the word "licence" is used.  This is the UK English spelling
+of the word spelled as "license" in the US.  P4DTI project policy is to
+use US English spelling.
+
+
+NICE
+
+job000832: P4DTI checksum script doesn't know jobspec scripts
+
+The P4DTI comes with a checksum script to compute a checksum of the
+P4DTI sources.  Two new source files (check_jobspec.py and
+extend_jobspec.py) are not included.
+
+
+5.19. WHAT WAS FIXED IN RELEASE 2.0.0
+
+For information about what was fixed in releases up to and including
+2.0.0, see the release notes for that release:
+<http://www.ravenbrook.com/project/p4dti/release/2.0.0/release-notes.txt>
+
+
+A. REFERENCES
+
+None.
+
+
+B. DOCUMENT HISTORY
+
+2007-08-16 NB Updated for release 2.4.1
+
+2007-09-26 NB Updated for release 2.4.2
+
+2009-03-03 NB Updated for release 2.4.3
+
+2009-04-19 NB Updated for release 2.4.4
+
+2009-05-07 NB Updated for release 2.4.5
+
+
+C. COPYRIGHT AND LICENSE
+
+This document is copyright (C) 2002 Perforce Software, Inc.  All rights
+reserved.
+
+Redistribution and use of this document in any form, with or without
+modification, is permitted provided that redistributions of this
+document retain the above copyright notice, this condition and the
+following disclaimer.
+
+THIS DOCUMENT IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
+IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+HOLDERS AND CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+DOCUMENT, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+$Id: //info.ravenbrook.com/project/p4dti/version/2.4/release-notes.txt#9 $

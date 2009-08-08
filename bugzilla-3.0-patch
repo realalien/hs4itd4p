@@ -1,0 +1,410 @@
+diff -r -u -N /home/nb/p4/p4dti/import/2007-05-09/bugzilla-3.0/bugzilla-3.0/Bugzilla/Bug.pm ./Bugzilla/Bug.pm
+--- /home/nb/p4/p4dti/import/2007-05-09/bugzilla-3.0/bugzilla-3.0/Bugzilla/Bug.pm	2009-04-28 13:11:50.000000000 +0100
++++ ./Bugzilla/Bug.pm	2009-04-28 13:09:46.000000000 +0100
+@@ -1412,6 +1412,166 @@
+     return $list_ref;
+ }
+ 
++# Prepare a hash of information for this bug replicated from the
++# Perforce source code management system by the P4DTI replicator.
++
++sub p4dti {
++    my ($self) = @_;
++
++    if (! exists $self->{'p4dti'}) {
++        my ($bug_id) = $self->{bug_id};
++        my %p4dti;
++        if (Bugzilla->params->{"p4dti"}) {
++            my $dbh = Bugzilla->dbh;
++            my $rows = $dbh->do("SHOW TABLES LIKE 'p4dti_bugs'");
++            if ($rows > 0) {
++                $p4dti{'status'} = 'on';
++                # First get the row from p4dti_bugs showing whether or not this bug is
++                # replicated at all.
++                my $sth = $dbh->prepare("SELECT rid, sid, jobname FROM p4dti_bugs 
++                                         WHERE bug_id = ?");
++                $sth->execute($bug_id);
++                if (($p4dti{'rid'}, $p4dti{'sid'}, my $jobname) = $sth->fetchrow_array()) {
++                    my @fixlist;
++                    my @speclist;
++                    $p4dti{'status'} = 'replicated';
++                    
++                    # Replicating a bug more than once (i.e. to more than one
++                    # Perforce server or via more than one replicator) is
++                    # currently not supported by the replication system.
++                    if (my ($other_rid, $other_sid) = $sth->fetchrow_array()) {
++                        die "bug $bug_id is replicated by (".$p4dti{'rid'}.", ".
++                            $p4dti{'sid'}.") and ($other_rid, $other_sid).";
++                    }
++                    
++                    # Get P4DTI config for this rid/sid combination
++                    my %p4dti_config;
++                    $sth = $dbh->prepare("SELECT config_key, config_value FROM p4dti_config 
++                                          WHERE rid = ? AND sid = ?");
++                    $sth->execute($p4dti{'rid'}, $p4dti{'sid'});
++                    while(my ($p4dti_config_key, $p4dti_config_value) = $sth->fetchrow_array){
++                        $p4dti_config{$p4dti_config_key} = $p4dti_config_value;
++                    }
++                    if (!defined $p4dti_config{'p4_server_description'}) {
++                        $p4dti_config{'p4_server_description'} = "";
++                    }
++                    if (!defined $p4dti_config{'changelist_url'}) {
++                        $p4dti_config{'changelist_url'} = "";
++                    }
++                    if (!defined $p4dti_config{'job_url'}) {
++                        $p4dti_config{'job_url'} = "";
++                    }
++                    if (!defined $p4dti_config{'replicator_user'}) {
++                        $p4dti_config{'replicator_user'} = "";
++                    }
++                    $p4dti{'config'} = \%p4dti_config;
++                    
++                    $jobname = value_quote($jobname);
++                    if ($p4dti_config{"job_url"} ne "") {
++                        $p4dti{'jobname'} = sprintf("<a href=\"$p4dti_config{'job_url'}\">$jobname</a>", $jobname);
++                    } else { # no job URL pattern.
++                        $p4dti{'jobname'} = $jobname;
++                    }
++                    
++                    # Get actual fixes.
++                    # Every row in the p4dti_fixes table with the right bug_id
++                    # is a fix for this bug.  We have to match that up with a row
++                    # in the p4dti_changelist table, to get the fix description.
++                    # However, if there are multiple replicators running,
++                    # there may be more than one row in the p4dti_changelist
++                    # table with a given changelist number.  So we make
++                    # the SIDs (Perforce server IDs) match.
++                    #
++                    # We do a LEFT JOIN and get a not-NULL field (the rid)
++                    # from the p4dti_changelists table so we can distinguish
++                    # the cases in which there is not a p4dti_changelists row
++                    # for this changelist.  That indicates a failure in the
++                    # replicator, so we want to know about it.
++                    $sth = $dbh->prepare("SELECT profiles.realname, profiles.login_name,
++                                              p4dti_fixes.changelist,
++                                              p4dti_fixes.status, p4dti_changelists.p4date,
++                                              p4dti_changelists.description, p4dti_changelists.rid,
++                                              p4dti_changelists.flags
++                                          FROM profiles, p4dti_fixes
++                                          LEFT JOIN p4dti_changelists
++                                                 ON (p4dti_changelists.changelist=p4dti_fixes.changelist
++                                                     AND p4dti_changelists.sid = p4dti_fixes.sid)
++                                          WHERE p4dti_fixes.bug_id = ?
++                                            AND profiles.userid = p4dti_changelists.user
++                                            AND p4dti_fixes.rid = ?
++                                            AND p4dti_changelists.rid = ?
++                                            AND p4dti_fixes.sid = ?
++                                            AND p4dti_changelists.sid = ?
++                                          ORDER BY p4dti_fixes.changelist");
++                    $sth->execute($bug_id,
++                                  $p4dti{'rid'}, $p4dti{'rid'},
++                                  $p4dti{'sid'}, $p4dti{'sid'});
++                    $p4dti{'hasfixes'} = 0;
++                    while(my ($realname, $login_name, $changelist, $status, $p4date,
++                              $description, $changelist_rid, $changelist_flags) =
++                          $sth->fetchrow_array()) {
++                        $p4dti{'hasfixes'} = 1;
++                        my %fix;
++                        if (!defined $changelist_rid || $changelist_rid eq "") {
++                            die "p4dti_changelists has no row for changelist $changelist.";
++                        }
++                        $fix{'changelist_rid'} = $changelist_rid;
++                        $fix{'description'} = $description || "(none)";
++                        if ($changelist) {
++                            my $changelist_html;
++                            if ($p4dti_config{"changelist_url"} ne "") {
++                                $fix{'changelist'} =
++                                    sprintf("<a href=\"$p4dti_config{'changelist_url'}\">$changelist</a>",
++                                            $changelist);
++                            } else { # no changelist URL pattern.
++                                $fix{'changelist'} = $changelist;
++                            }
++                        } else {
++                            $fix{'changelist'} = "";
++                        }
++                        if ($changelist_flags & 1) {
++                            $fix{'changelist_note'} = "";
++                        } else {
++                            $fix{'changelist_note'} = "(pending)";
++                        }
++                        if ($login_name eq $p4dti_config{"replicator_user"}) {
++                            $fix{'user_field'} = "(unknown)";
++                        } else {
++                            $fix{'user_field'} = ("<a href=\"mailto:$login_name\">" .
++                                                    value_quote($realname) . "</a>");
++                        }
++                        $fix{'status'} = $status || "";
++                        $fix{'p4date'} = $p4date || "";
++                            
++                        push( @fixlist, \%fix );
++                    }
++                    $p4dti{'fixes'} = \@fixlist;
++
++                    # get filespecs.
++                    $sth = $dbh->prepare("SELECT filespec
++                                          FROM p4dti_filespecs
++                                          WHERE bug_id = ?");
++                    $sth->execute($bug_id);
++                    $p4dti{'hasfilespecs'} = 0;
++                    while (my ($filespec) = $sth->fetchrow_array()) {
++                        $p4dti{'hasfilespecs'} = 1;
++                        push( @speclist, $filespec );
++                    }
++                    $p4dti{'filespecs'} = \@speclist;
++                } else { # no entry in p4dti_bugs table.
++                    $p4dti{'status'} = 'notreplicated';
++                }
++            } else { # No p4dti_bugs table.
++                $p4dti{'status'} = 'notables';
++            }
++        } else { # Parameter 'p4dti' not set
++            $p4dti{'status'} = 'off';
++        }
++        $self->{'p4dti'} = \%p4dti;
++    }
++    return $self->{'p4dti'};
++}
++
+ # Tells you whether or not the argument is a valid "open" state.
+ sub is_open_state {
+     my ($state) = @_;
+@@ -2167,7 +2327,7 @@
+         # Miscellaneous properties and methods.
+         qw(error groups product_id component_id
+            longdescs milestoneurl attachments
+-           isopened isunconfirmed
++           isopened isunconfirmed p4dti
+            flag_types num_attachment_flag_types
+            show_attachment_flags any_flags_requesteeble),
+ 
+diff -r -u -N /home/nb/p4/p4dti/import/2007-05-09/bugzilla-3.0/bugzilla-3.0/Bugzilla/Config/Core.pm ./Bugzilla/Config/Core.pm
+--- /home/nb/p4/p4dti/import/2007-05-09/bugzilla-3.0/bugzilla-3.0/Bugzilla/Config/Core.pm	2009-04-28 13:11:51.000000000 +0100
++++ ./Bugzilla/Config/Core.pm	2009-04-28 13:09:46.000000000 +0100
+@@ -126,7 +126,13 @@
+                'stable_branch_release', 'disabled'],
+    default => 'latest_stable_release',
+    checker => \&check_notification
+-  } );
++  },
++
++  {
++   name => 'p4dti',
++   type => 'b',
++   default => '0',
++   } );
+   return @param_list;
+ }
+ 
+diff -r -u -N /home/nb/p4/p4dti/import/2007-05-09/bugzilla-3.0/bugzilla-3.0/Bugzilla/Config.pm ./Bugzilla/Config.pm
+--- /home/nb/p4/p4dti/import/2007-05-09/bugzilla-3.0/bugzilla-3.0/Bugzilla/Config.pm	2009-04-28 13:11:51.000000000 +0100
++++ ./Bugzilla/Config.pm	2009-04-28 13:09:46.000000000 +0100
+@@ -276,6 +276,58 @@
+ 
+     ChmodDataFile($param_file, 0666);
+ 
++    # Ensure the existence of the P4DTI Bugzilla parameters table.
++    require Bugzilla;
++    my $dbh;
++    my $connected = eval { 
++        $dbh = Bugzilla::DB::connect_main(); 
++    };
++    if (!$connected) {
++        # no access to database (e.g. checksetup.pl in fresh
++        # install).
++        return;
++    }
++    my %stored_params;
++    my $rows = $dbh->do("SHOW TABLES LIKE 'p4dti_bugzilla_parameters'");
++    # If table exists, collect previous parameter values from it:
++    if ($rows > 0) {
++        my $sth = $dbh->prepare("SELECT parameter_name, parameter_value
++                                 FROM p4dti_bugzilla_parameters");
++        $sth->execute();
++        while (my ($key, $value) = $sth->fetchrow_array()) {
++            $stored_params{$key} = $value;
++        }
++    } else {
++        print("Creating table p4dti_bugzilla_parameters.<br>\n");
++        $dbh->do("CREATE TABLE p4dti_bugzilla_parameters
++             (parameter_name varchar(255) not null primary key,
++              parameter_value mediumtext)");
++    }
++    
++    # Bring params table up-to-date by a combination of UPDATEs
++    # and INSERTs.
++    my $update = $dbh->prepare("UPDATE p4dti_bugzilla_parameters
++                                SET parameter_value = ?
++                                WHERE parameter_name = ?");
++    my $insert = $dbh->prepare("INSERT INTO p4dti_bugzilla_parameters
++                                (parameter_name, parameter_value) VALUES (?, ?)");
++
++    foreach my $key (keys %$param_data) {
++        my $value = $param_data->{$key};
++        if (!defined($value)) {
++            $value = "";
++        }
++        require Bugzilla::Util;
++        Bugzilla::Util::trick_taint($value);
++        if (defined($stored_params{$key})) {
++            if ($stored_params{$key} ne $value) {
++                $update->execute($value, $key);
++            }
++        } else {
++            $insert->execute($key, $value);
++        }
++    }
++
+     # And now we have to reset the params cache so that Bugzilla will re-read
+     # them.
+     delete Bugzilla->request_cache->{params};
+diff -r -u -N /home/nb/p4/p4dti/import/2007-05-09/bugzilla-3.0/bugzilla-3.0/extensions/p4dti/template/en/hook/bug/comments.html.tmpl/aftercomments/p4dti.html.tmpl ./extensions/p4dti/template/en/hook/bug/comments.html.tmpl/aftercomments/p4dti.html.tmpl
+--- /home/nb/p4/p4dti/import/2007-05-09/bugzilla-3.0/bugzilla-3.0/extensions/p4dti/template/en/hook/bug/comments.html.tmpl/aftercomments/p4dti.html.tmpl	1970-01-01 01:00:00.000000000 +0100
++++ ./extensions/p4dti/template/en/hook/bug/comments.html.tmpl/aftercomments/p4dti.html.tmpl	2009-04-28 13:09:49.000000000 +0100
+@@ -0,0 +1,135 @@
++[%# P4DTI section of Bugzilla bug form. #%]
++
++[%# $Id: //info.ravenbrook.com/project/p4dti/version/2.4/code/bugzilla-2.17.7/template/en/extension/hook/bug/comments.html.tmpl/aftercomments/p4dti.html.tmpl#3 $ #%]
++
++[%# This document is copyright (C) 2004 Perforce Software, Inc.  All
++  # rights reserved.
++  # 
++  # Redistribution and use of this document in any form, with or
++  # without modification, is permitted provided that redistributions
++  # of this document retain the above copyright notice, this condition
++  # and the following disclaimer.
++  # 
++  # THIS DOCUMENT IS PROVIDED BY THE COPYRIGHT HOLDERS AND
++  # CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
++  # INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
++  # MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
++  # DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS AND
++  # CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
++  # SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
++  # LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
++  # USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
++  # AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
++  # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
++  # ANY WAY OUT OF THE USE OF THIS DOCUMENT, EVEN IF ADVISED OF THE
++  # POSSIBILITY OF SUCH DAMAGE.
++  #%]
++
++[%# This is included as a hook in comments.html.tmpl, which is used in
++  # various contexts.  We must check for those contexts here.
++  #
++  # The contexts are as follows:
++  # 
++  # - regular bug display (mode == 'edit')
++  # - formatted for printing / "long list" (mode == 'show'); 
++  # - midair collision (start_at > 0).
++  #%]
++
++[% IF (bug.p4dti.status != 'off') && (start_at == 0) %]
++[%# exclude midair collision case %]
++
++<div class="p4dti">
++
++[% IF (mode == 'edit') %]
++[%# eye-candy %]
++  <hr/>
++[% END %]
++
++[% SWITCH bug.p4dti.status %]
++[% CASE "replicated" %]
++  [% IF mode == 'edit' %]
++  <p><b>Perforce replication:</b></p>
++  [% END %]
++  <table border="0" cellspacing="0" cellpadding="4">
++      <tr valign="top">
++          <td><b>Job:</b> [% bug.p4dti.jobname %] </td>
++          <td><b>Server:</b>
++            [% bug.p4dti.sid FILTER html %]
++            [% IF bug.p4dti.config.p4_server_description %]:
++            [% bug.p4dti.config.p4_server_description FILTER html %]
++            [% END %]
++          </td>
++          <td><b>Replicator ID</b>:
++              [% bug.p4dti.rid FILTER html %]</td>
++      </tr>
++      [% IF bug.p4dti.hasfixes %]
++      <tr align="left" valign="top">
++        <td align="left" colspan="99">
++          <table
++        [% IF mode == 'edit' %]
++         border="1"
++        [% END %]
++         cellspacing="0" cellpadding="4">
++      <tr align="left" valign="top">
++        <th>Change</th>
++        <th>Effect</th>
++        <th>Date</th>
++        <th>User</th>
++        <th>Description</th>
++      </tr>
++        [% FOREACH fix = bug.p4dti.fixes %]
++          <tr valign="top">
++            <td>[% fix.changelist %]
++            [% fix.changelist_note %]</td>
++            <td>[% fix.status FILTER html %]</td>
++            <td>[% fix.p4date FILTER html %]</td>
++            <td>[% fix.user_field %]</td>
++            <td>[% fix.description FILTER html %]</td>
++          </tr>
++        [% END %]
++        </table></td></tr>
++      [% ELSE %]
++        <tr>
++          <td colspan="5"><b>Fixes: </b>None</b></td>
++        </tr>
++      [% END %]
++      [% IF bug.p4dti.hasfilespecs %]
++      <tr valign="top">
++        <td><b>Filespecs</b></td>
++        <td>
++          <table>
++          [% FOREACH f = bug.p4dti.filespecs %]
++            <tr valign="top">
++              <td>[% f FILTER html %]</td>
++            </tr>
++          [% END %]
++          </table>
++        </td>
++      </tr>
++      [% END %]
++  </table>
++
++[% CASE "notreplicated" %]
++    
++  <p><b>Not replicated in Perforce.</b></p>
++
++[% CASE "notables" %]
++
++  <p><b>The Perforce database tables were not found.  Consult your administrator.</b></p>
++
++[% CASE "off" %]
++
++[%# P4DTI parameter is turned off.  No output. %]
++
++[% CASE %]
++
++[%# Bug's p4dti method has put a value in p4dti.status which I wasn't expecting. %]
++
++  <p><b>This bug's Perforce data is invalid.  Consult your administrator. [% bug.p4dti.status %]
++</b></p>
++
++[% END %]
++
++</div>
++
++[% END %]
+diff -r -u -N /home/nb/p4/p4dti/import/2007-05-09/bugzilla-3.0/bugzilla-3.0/template/en/default/admin/params/core.html.tmpl ./template/en/default/admin/params/core.html.tmpl
+--- /home/nb/p4/p4dti/import/2007-05-09/bugzilla-3.0/bugzilla-3.0/template/en/default/admin/params/core.html.tmpl	2009-04-28 13:12:25.000000000 +0100
++++ ./template/en/default/admin/params/core.html.tmpl	2009-04-28 13:09:45.000000000 +0100
+@@ -107,5 +107,7 @@
+                           "If you are running a release candidate, you will get " _
+                           "a notification for newer release candidates too.</li>" _
+                           "<li>'disabled' will never notify you about new releases and no " _
+-                          "connection will be established to a remote server.</li></ul>" }
++                          "connection will be established to a remote server.</li></ul>",
++
++  p4dti => "If this option is set, Bugzilla uses the Perforce Defect Tracking Integration." }
+ %]

@@ -1,0 +1,2052 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
+
+<head>
+
+<title>Perforce Defect Tracking Integration User's Guide</title>
+
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000" link="#000099" vlink="#660066" alink="#FF0000">
+
+<div align="center">
+
+<p><i><a href="http://www.ravenbrook.com/project/p4dti/">Perforce Defect Tracking Integration Project</a></i></p>
+
+<hr />
+
+
+<h1>Perforce Defect Tracking Integration User's Guide</h1>
+
+<address>
+<a href="mailto:rb@ravenbrook.com">Richard Brooksby</a>,
+<a href="http://www.ravenbrook.com/">Ravenbrook Limited</a>,
+2000-08-10
+</address>
+
+</div>
+
+
+<h2><a id="section-Contents" name="section-Contents">Contents</a></h2>
+
+<ul>
+
+<li><a href="#section-1">1. Introduction</a></li>
+
+<li><a href="#section-2">2. Overview of the software</a>
+
+<ul>
+
+  <li><a href="#section-2.1">2.1. A typical workflow using the <abbr title="Perforce Defect Tracking Integration">P4DTI</abbr></a></li>
+
+  <li><a href="#section-2.2">2.2. How the <abbr title="Perforce Defect Tracking Integration">P4DTI</abbr> enforces the defect tracker's rules</a></li>
+
+  <li><a href="#section-2.3">2.3. Other restrictions on using the <abbr title="Perforce Defect Tracking Integration">P4DTI</abbr></a></li>
+
+</ul>
+
+</li>
+
+<li><a href="#section-3">3. Creating an issue</a></li>
+
+<li><a href="#section-4">4. Finding issues assigned to you</a>
+
+<ul>
+
+  <li><a href="#section-4.1">4.1. In the Perforce Visual Client (P4V)</a></li>
+
+  <li><a href="#section-4.2">4.2. From the Perforce command line</a></li>
+
+  <li><a href="#section-4.3">4.3. In the Perforce Web GUI (P4Web)</a></li>
+
+</ul>
+
+</li>
+
+<li><a href="#section-5">5. Editing an issue</a>
+
+<ul>
+
+  <li><a href="#section-5.1">5.1. In the Perforce Visual Client (P4V)</a></li>
+
+  <li><a href="#section-5.2">5.2. From the Perforce command line</a></li>
+
+  <li><a href="#section-5.3">5.3. In the Perforce Web GUI (P4Web)</a></li>
+
+</ul>
+
+</li>
+
+<li><a href="#section-6">6. Starting work and linking it to issues</a>
+
+<ul>
+
+  <li><a href="#section-6.1">6.1. Setting your user jobview</a></li>
+
+  <li><a href="#section-6.2">6.2. Using the Perforce Visual Client (P4V) to start work and link it to issues</a></li>
+
+  <li><a href="#section-6.3">6.3. Using the Perforce command line to start work and link it to issues</a></li>
+
+  <li><a href="#section-6.4">6.4. Using the Perforce Web GUI (P4Web) to start work and link it to issues</a></li>
+
+</ul>
+
+</li>
+
+<li><a href="#section-7">7. Submitting partial work while keeping issues</a></li>
+
+<li><a href="#section-8">8. Submitting completed work and resolving issues</a>
+
+<ul>
+
+  <li><a href="#section-8.1">8.1. In the Perforce Visual Client (P4V)</a></li>
+
+  <li><a href="#section-8.2">8.2. From the Perforce command line</a></li>
+
+  <li><a href="#section-8.3">8.3. Using the Perforce development environment plug-ins</a></li>
+
+  <li><a href="#section-8.4">8.4. In the Perforce Web GUI (P4Web)</a></li>
+
+</ul>
+
+</li>
+
+<li><a href="#section-9">9. Linking already-completed work to an issue</a>
+
+<ul>
+
+  <li><a href="#section-9.1">9.1. In the Perforce Visual Client (P4V)</a></li>
+
+  <li><a href="#section-9.2">9.2. From the Perforce command line</a></li>
+
+</ul>
+
+</li>
+
+<li><a href="#section-10">10. Finding the changes linked to an issue</a>
+
+<ul>
+
+  <li><a href="#section-10.1">10.1. In the Perforce Visual Client (P4V)</a></li>
+
+  <li><a href="#section-10.2">10.2. From the Perforce command line</a></li>
+
+  <li><a href="#section-10.3">10.3. In the Perforce Web GUI (P4Web)</a></li>
+
+  <li><a href="#section-10.4">10.4. Using the defect tracker</a></li>
+
+</ul>
+
+</li>
+
+<li><a href="#section-11">11. Finding the issues linked with a change</a>
+
+<ul>
+
+  <li><a href="#section-11.1">11.1. In the Perforce Visual Client (P4V)</a></li>
+
+  <li><a href="#section-11.2">11.2. From the Perforce command line</a></li>
+
+  <li><a href="#section-11.3">11.3. In the Perforce Web GUI (P4Web)</a></li>
+
+</ul>
+
+</li>
+
+<li><a href="#section-12">12. Finding the files affected by an issue</a>
+
+<ul>
+
+  <li><a href="#section-12.1">12.1. In the Perforce Visual Client (P4V)</a></li>
+
+  <li><a href="#section-12.2">12.2. From the Perforce command line</a></li>
+
+  <li><a href="#section-12.3">12.3. In the Perforce Web GUI (P4Web)</a></li>
+
+</ul>
+
+</li>
+
+<li><a href="#section-13">13. Finding the issues linked to files</a>
+
+<ul>
+
+  <li><a href="#section-13.1">13.1. In the Perforce Visual Client (P4V)</a></li>
+
+  <li><a href="#section-13.2">13.2. From the Perforce command line</a></li>
+
+  <li><a href="#section-13.3">13.3. In the Perforce Web GUI (P4Web)</a></li>
+
+</ul>
+
+</li>
+
+<li><a href="#section-14">14. Finding the issues you're working on</a>
+
+<ul>
+  <li><a href="#section-14.1">14.1. In the Perforce Visual Client (P4V)</a></li>
+  <li><a href="#section-14.2">14.2. From the Perforce command line</a></li>
+  <li><a href="#section-14.3">14.3. In the Perforce Web GUI (P4Web)</a></li>
+</ul>
+
+</li>
+
+<li><a href="#section-15">15. Finding out where an issue is being worked on and by whom</a>
+
+<ul>
+
+  <li><a href="#section-15.1">15.1. In the Perforce Visual Client (P4V)</a></li>
+
+  <li><a href="#section-15.2">15.2. From the Perforce command line</a></li>
+
+</ul>
+
+</li>
+
+<li><a href="#section-16">16. Finding out which issues have been fixed in a release</a></li>
+
+<li><a href="#section-A">A. References</a></li>
+
+<li><a href="#section-B">B. Document history</a></li>
+
+<li><a href="#section-Glossary">Glossary</a></li>
+
+</ul>
+
+
+<h2><a id="section-1" name="section-1">1. Introduction</a></h2>
+
+<p>This manual is the Perforce Defect Tracking Integration User's Guide.
+It teaches the use of the Perforce Defect Tracking Integration; detailed
+instructions on using Perforce and your defect tracker aren't given
+here. If you need more information on using Perforce, please see the
+<cite><a
+href="http://www.perforce.com/perforce/doc.072/manuals/p4guide/">Perforce
+User's Guide</a></cite>, the <cite><a
+href="http://www.perforce.com/perforce/doc.072/manuals/cmdref/">Perforce Command Reference</a></cite>, or the Perforce on-line help system.  If you need more information on using your defect tracking system, please see the manuals for the system or consult your defect tracking administrator. </p>
+
+<p> If you're administering the Perforce Defect Tracking Integration (<abbr title="Perforce Defect Tracking Integration">P4DTI</abbr>), you'll need our <a href="../ag/index.html"><cite>Perforce Defect Tracking Integration Administrator's Guide</cite></a>.  If you're installing the <abbr title="Perforce Defect Tracking Integration">P4DTI</abbr>, the Administrator's Guide is the place to start. </p>
+
+
+<h2><a id="section-2" name="section-2">2. Overview of the software</a></h2>
+
+<p> The <abbr title="Perforce Defect Tracking Integration">P4DTI</abbr> makes the defect tracker's records appear as jobs in Perforce.  You can work with jobs more or less just as described in the Perforce manuals, and your changes are reflected in the defect tracker.  This saves you having to switch between Perforce and the defect tracker to do your work.  For information on how to work with jobs in Perforce, see the <cite><a href="http://www.perforce.com/perforce/doc.072/manuals/p4guide/">Perforce User's Guide</a></cite>. </p>
+
+<p> Perforce has a mechanism for linking changelists to jobs.  The <abbr title="Perforce Defect Tracking Integration">P4DTI</abbr> links the changelists to defect tracker issues as well, so you don't need to switch to the defect tracker and copy out information about your changes.  Linking also allows you to: </p>
+
+<ol>
+
+<li> Record work done for a particular reason. </li>
+
+<li> Find out which work has been integrated into a codeline. </li>
+
+<li> Determine which issues have been addressed by a particular version of the source code. </li>
+
+<li> Find out what changed in order to resolve an issue. </li>
+
+<li> Find out which defect tracker issues have influenced a file, so that you can understand the reasons for its design. </li>
+
+</ol>
+
+<p> The <abbr title="Perforce Defect Tracking Integration">P4DTI</abbr> makes the links to changelists appear in the defect tracker, making it easy to see what was done or is currently being done to resolve a defect. </p>
+
+<p> See the <a href="../ag/index.html"><cite>Perforce Defect Tracking Integration Administrator's Guide</cite></a> for an overview of how the <abbr title="Perforce Defect Tracking Integration">P4DTI</abbr> works. </p>
+
+
+<h3><a id="section-2.1" name="section-2.1">2.1. A typical workflow using the <abbr title="Perforce Defect Tracking Integration">P4DTI</abbr></a></h3>
+
+<p> A typical organization might use the <abbr title="Perforce Defect Tracking Integration">P4DTI</abbr> in the following way:</p>
+
+<ol>
+
+<li> The development manager assigns a defect tracking issue to a
+developer.  This assignment is replicated into the corresponding
+Perforce job.</li>
+
+<li> The developer notices the issue in her list of jobs. </li>
+
+<li> The developer analyzes the issue and updates the job.  Her
+analysis is replicated back to the defect tracker and appears there
+too. </li>
+
+<li> The developer checks out some files to work on to fix the
+problem, and links her pending work to the job.  The link is
+replicated back to the defect tracker, and her colleagues can tell
+that the issue is being worked on, by whom, and where. </li>
+
+<li> The developer finishes fixing the defect and submits her
+changelist.  The job status changes, and this change causes a
+corresponding change in the defect tracker, so that the issue is
+marked as "resolved" and moved on to the test group for
+verifying. </li>
+
+<li> The test group checks that the issue is resolved, and also runs
+tests on the areas of the system that were changed to make sure they
+weren't damaged. </li>
+
+</ol>
+
+<p> For information about your organization's workflow policy, or how you should use the <abbr title="Perforce Defect Tracking Integration">P4DTI</abbr>, consult your manager or the <abbr title="Perforce Defect Tracking Integration">P4DTI</abbr> administrator. </p>
+
+
+<h3><a id="section-2.2" name="section-2.2">2.2. How the <abbr title="Perforce Defect Tracking Integration">P4DTI</abbr> enforces the defect tracker's rules</a></h3>
+
+<p> If you do something in Perforce that the defect tracker doesn't allow--for example, if your action causes an error, or if it's forbidden by the defect tracker's rules--then the replicator undoes the change in Perforce when it next wakes up, and sends you an e-mail message explaining what happened.  The e-mail message contains your changes, so you won't have lost them. </p>
+
+<p> An example of such an e-mail message is shown in <a
+href="#figure-1">figure 1</a>. </p>
+
+<div align="center">
+
+<p> <a id="figure-1" name="figure-1">Figure 1. Example e-mail sent when
+a user changes an issue in Perforce in a way that's forbidden in the
+defect tracker</a> </p>
+
+<table border="1" cellpadding="5" cellspacing="0"><tr><td>
+<table border="0" cellpadding="0" cellspacing="0">
+<tr valign="top"><td></td>
+<td><pre>Date: Tue, 31 Jul 2001 08:12:20 +0100 (BST)
+From: p4dti-replicator0@company.domain
+To: Job owner &lt;rb@company.domain&gt;, Job changer &lt;gdr@company.domain&gt;,
+        P4DTI administrator &lt;admin@company.domain&gt;
+Subject: (P4DTI-8603)  Job 'bug7' overwritten by issue 'bug7'.
+
+(P4DTI-8658)  This is an automatically generated e-mail from the Perforce Defect
+Tracking Integration replicator 'replicator0'.
+
+(P4DTI-8512)  The replicator failed to replicate Perforce job 'bug7' to
+defect tracker issue 'bug7', because of the following problem:</pre></td>
+</tr><tr valign="top"><td><a name="para-2.2.1" id="para-2.2.1" href="#note-2.2.1">1</a>&nbsp;</td>
+<td><pre>(P4DTI-6142)  No transition from state 'assigned' to state 'verified'.
+</pre></td></tr>
+<tr valign="top"><td></td>
+<td><pre>(P4DTI-8614)  The replicator has therefore overwritten Perforce job 'bug7'
+with defect tracker issue 'bug7'.  See section 2.2 of the P4DTI User Guide
+for more information.</pre></td></tr>
+<tr valign="top"><td><a name="para-2.2.2" id="para-2.2.2" href="#note-2.2.2">2</a>&nbsp;</td>
+<td><pre>(P4DTI-8625)  The job looked like this before being overwritten:
+
+Date: 2001/07/31 08:05:45
+Description:
+	It says 'foot' where it should say 'metre'.
+Job: bug7
+Owner: rb
+P4DTI-filespecs:
+P4DTI-issue-id: 7
+P4DTI-rid: replicator0
+P4DTI-user: gdr
+Priority: Low
+Severity: Medium
+State: verified
+Title: It uses imperial measurements</pre></td></tr>
+<tr valign="top"><td><a name="para-2.2.3" id="para-2.2.3" href="#note-2.2.3">3</a>&nbsp;</td>
+<td><pre>(P4DTI-8523)  Here's a full Python traceback:
+...</pre></td></tr>
+<tr valign="top"><td></td>
+<td><pre>(P4DTI-8534)  If you are having continued problems, please contact your P4DTI
+administrator &lt;admin@company.domain&gt;.</pre></td></tr>
+</table></td></tr></table>
+</div>
+
+<p> Notes on <a href="#figure-1">figure 1</a>: </p>
+
+<ol>
+
+<li><p> <a id="note-2.2.1" name="note-2.2.1" href="#para-2.2.1">This
+paragraph</a> gives the reason why the change to the job couldn't be
+replicated to the defect tracker.  The code at the start of the
+paragraph is a unique message identifier that can be used to look up
+that message in <a
+href="../ag/index.html#section-11.2">section 11.2</a> of
+the <a href="../ag/index.html"><cite>Perforce Defect
+Tracking Integration Administrator's Guide</cite></a>. </p>
+
+<p> In this case the problem is that &lt;gdr@company.domain&gt; changed
+the status of the job from "assigned" to "verified", but this was
+forbidden in the defect tracker.  The remedy is to follow the defect
+tracker's workflow. </p></li>
+
+<li><p> <a id="note-2.2.2" name="note-2.2.2" href="#para-2.2.2">This
+section</a> shows the Perforce job as it was after the forbidden change
+had been made, but before it was undone. </p>
+
+<p> The <abbr title="Perforce Defect Tracking Integration">P4DTI</abbr>
+reverses all changes, even if some of them would have been allowed.  For
+example, if &lt;gdr@company.domain&gt; has changed Priority from "High"
+to "Low" as well as Status from "assigned" to "verified" then both of
+these fields will be set back even though the change to Priority may
+have been allowed on its own. </p></li>
+
+<li><p> <a id="note-2.2.3" name="note-2.2.3" href="#para-2.2.3">This
+section</a> gives a complete traceback at the point in the code where
+the problem was discovered.  This traceback allows Perforce support to
+track down defects in the code that prevent replication.  Under normal
+use you can ignore this. </p></li>
+
+</ol>
+
+<p> The <abbr title="Perforce Defect Tracking Integration">P4DTI</abbr>
+undoes the change to the job, but it doesn't undo any fixes, even if it
+was a fix that caused the forbidden change to the job.  That's because
+there needs to be a way to add retrospective fixes in Perforce (see <a
+href="#section-9">section 9, "Linking already-completed work to an
+issue"</a>) even if the retrospective fix would violate the defect
+tracker's workflow. </p>
+
+
+<h3><a id="section-2.3" name="section-2.3">2.3. Other restrictions on using the <abbr title="Perforce Defect Tracking Integration">P4DTI</abbr></a></h3>
+
+<p> Your organization might have a policy about which changelists to link with issues.  For example, some organizations might want only the final check-in of a fix linked, and some might want all the intermediate stages linked. Your organization's policy may not allow some of the procedures in this manual; for information about your organization's policy, consult your manager or the <abbr title="Perforce Defect Tracking Integration">P4DTI</abbr> administrator. </p>
+
+
+<h2><a id="section-3" name="section-3">3. Creating an issue</a></h2>
+
+<p> Create issues in the defect tracker as normal.  Each organization has its own policies for how to create issues, so if you need instructions, consult your defect tracker administrator. </p>
+
+<p> You can't create issues by creating jobs in Perforce. </p>
+
+
+<h2><a id="section-4" name="section-4">4. Finding issues assigned to you</a></h2>
+
+<p> You can use the defect tracker to see a list of issues assigned to you in the normal way.  In addition, your defect tracker might be configured to send you e-mail messages when issues are assigned to you. </p>
+
+<p> You can also use Perforce to see the issues assigned to you, by setting a <dfn>jobview</dfn> that matches the jobs representing these issues.  For detailed instructions on specifying a jobview, see the <cite><a href="http://www.perforce.com/perforce/doc.072/manuals/p4guide/">Perforce User's Guide</a></cite>. </p>
+
+<p> The correct choice of jobview depends on which defect tracker you're using, how the <abbr title="Perforce Defect Tracking Integration">P4DTI</abbr> has been configured, and what workflow you use.  Ask your <abbr title="Perforce Defect Tracking Integration">P4DTI</abbr> administrator if you have trouble specifying the jobview you want.  If you're using standard fields and workflows in your defect tracker, then the jobviews in <a href="#table-1">table 1</a> should be suitable. </p>
+
+<div align="center">
+
+<p><a id="table-1" name="table-1">Table 1. Jobviews for standard
+workflows and configurations</a></p>
+
+<table border="1" cellspacing="0" cellpadding="5">
+
+<tr valign="top">
+  <th rowspan="2">Defect Tracker</th>
+  <th colspan="2">Issues you want to see</th>
+</tr>
+
+<tr valign="top">
+  <td>Assigned to user <code>spqr</code> for fixing.</td>
+  <td>Assigned to user <code>spqr</code> for testing.</td>
+</tr>
+
+<tr valign="top">
+  <td>Bugzilla</td>
+  <td><code>assigned_to=spqr status=assigned</code></td>
+  <td><code>assigned_to=spqr status=closed</code></td>
+</tr>
+
+</table>
+
+</div>
+
+<p>This section describes how to filter jobs using a jobview.  If you
+use the same jobview most of the time, you can set it as your user
+jobview.  See <a href="#section-6.1">Section 6.1, "Setting your user
+jobview"</a> for instructions.</p>
+
+<h3><a id="section-4.1" name="section-4.1">4.1. In the Perforce Visual Client (P4V)</a></h3>
+
+<p> To find issues assigned to you, follow these steps:</p>
+
+<ol>
+
+<li> Choose <span class="gui">View &gt; Jobs</span>.  This selects the
+Jobs pane. </li>
+
+<li> Enter the jobview in the field above the list of jobs.  This
+restricts the jobs you see to those matching the jobview, as shown in
+<a href="#figure-2">figure 2</a>.  </li>
+
+</ol>
+
+
+<div align="center">
+
+<p> <a id="figure-2" name="figure-2">Figure 2. Viewing jobs assigned to you from the Perforce Visual Client (P4V)</a> </p>
+
+<img src="p4v-job-pane.png" alt="A screenshot of the Jobs pane in the Perforce Visual Client (P4V)" width="730" height="526" />
+
+</div>
+
+
+<h3><a id="section-4.2" name="section-4.2">4.2. From the Perforce command line</a></h3>
+
+<p>To find issues assigned to you, enter the command <code
+class="command">p4 jobs -e "<i>jobview</i>"</code> with an appropriate
+jobview (see <a href="#table-1">table 1</a>). </p>
+
+<div class="bugzilla">
+
+<p> For example, if you're using Bugzilla, then the following command
+displays a list of jobs that have been assigned for development to the
+user whose Perforce userid is "spqr": </p>
+
+<blockquote><pre class="command">p4 jobs -e "assigned_to=spqr status=assigned"</pre></blockquote>
+
+</div>
+
+<h3><a id="section-4.3" name="section-4.3">4.3. In the Perforce Web GUI
+(P4Web)</a></h3>
+
+<p> To find issues assigned to you, follow these steps:</p>
+
+<ol>
+
+<li> Select the <span class="gui">Jobs</span> tab.  This will show the Perforce Jobs page. </li>
+
+<li> Enter a jobview in the <span class="gui">Jobview</span> field, and
+press the <span class="gui">Filter</span> button (see
+<a href="#figure-3">figure 3</a>).
+You'll probably find that you only use one or two different jobview
+filters.  Once you have entered a particular jobview you can bookmark
+the resulting page to avoid having to enter the joview again. </li>
+
+</ol>
+
+<div align="center">
+
+<p> <a id="figure-3" name="figure-3">Figure 3.  Viewing jobs assigned
+to you from the Perforce Web GUI</a> </p>
+
+<img src="p4web-job-page.png" alt="A screenshot of the Jobs page in the
+Perforce Web GUI" width="1006" height="720" />
+
+</div>
+
+
+<h2><a id="section-5" name="section-5">5. Editing an issue</a></h2>
+
+<p> You can edit an issue by editing the contents of the job in Perforce.  Your changes are replicated back to the defect tracker.  This procedure is useful when you want to: </p>
+
+<ul>
+
+<li> add more description to the job record. </li>
+
+<li> write notes about how the job was fixed, what else needs to be done, and so on. </li>
+
+<li> correct something in the job record. </li>
+
+<li> change the job status. </li>
+
+<li> add a note to the issue and change its status.  For example, there might be a work-around that you need to tell people about, rather than fixing anything in the code. </li>
+
+<li> send the issue back to your manager because you can't do it for some reason. </li>
+
+</ul>
+
+<p> If you change the issue in a way that the defect tracker doesn't allow--for example, if your action causes an error, or if it's forbidden by the defect tracker workflow--then the replicator undoes the change in Perforce when it next wakes up, and sends you an e-mail message explaining what happened.  The e-mail message contains your changes, so you won't have lost them. </p>
+
+<p> To change an issue, edit the job in Perforce as described in the following subsections.  Depending on your organization's policies, you might need to add some text explaining why you've edited the job.  (If you <em>have</em> made changes and have already submitted them, you need to link them to the job using the method described in <a href="#section-9">Section 9, "Linking already-completed work to an issue"</a>.) </p>
+
+
+<h3><a id="section-5.1" name="section-5.1">5.1. In the Perforce Visual Client (P4V)</a></h3>
+
+<p>To edit an issue, follow these steps:</p>
+
+<ol>
+
+<li>Select the job you need to edit.</li>
+
+<li>Click the <span class="gui">Edit</span> button.</li>
+
+<li>Edit the job appropriately. (For an example of editing a job, see <a href="#figure-4">figure 4</a>).</li>
+
+<li>Click the <span class="gui">Save</span> button.</li>
+
+</ol>
+
+
+<div align="center">
+
+<p> <a id="figure-4" name="figure-4">Figure 4</a>. Editing a job using the Perforce Visual Client (P4V)</p>
+
+<img src="p4v-edit-job.png" alt="A screenshot of job editing in the Perforce Visual Client (P4V)" width="731" height="616" />
+
+</div>
+
+
+<h3><a id="section-5.2" name="section-5.2">5.2. From the Perforce command line</a></h3>
+
+<p> To edit an issue from the Perforce command line, enter a <code class="command">p4 job</code> command and edit the job appropriately.  For example, the following command opens a form in your editor that allows you to edit the job bug94: </p>
+
+<blockquote><pre class="command">p4 job bug94</pre></blockquote>
+
+<p> For more information, see the <cite><a href="http://www.perforce.com/perforce/doc.072/manuals/p4guide/">Perforce User's Guide</a></cite>. </p>
+
+
+<h3><a id="section-5.3" name="section-5.3">5.3. In the Perforce Web GUI
+(P4Web)</a></h3>
+
+<p> To edit an issue, follow these steps: </p>
+
+<ol>
+
+<li> Select the <span class="gui">Jobs</span> tab.  This will show the Perforce Jobs page. </li>
+
+<li> Select the job you need to edit. </li>
+
+<li> Select <span class="gui">Edit job...</span> from the dropdown menu
+just below the tab bar (see <a href="#figure-5">figure 5</a>).  You may also need to press the <span
+class="gui">Go</span> button. </li>
+
+<li> Make your edits.</li>
+
+<li> Press the <span class="gui">Save</span> button when you have
+finished making your edits. </li>
+
+</ol>
+
+<div align="center">
+
+<p> <a id="figure-5" name="figure-5">Figure 5</a>.  Editing a job
+using the Perforce Web GUI</p>
+
+<img src="p4web-edit-job.png" alt="A screenshot of the job page, about
+to edit a job, in the Perforce Web GUI" width="819" height="561" />
+
+</div>
+
+
+<h2><a id="section-6" name="section-6">6. Starting work and linking it to issues</a></h2>
+
+<p> The <abbr title="Perforce Defect Tracking Integration">P4DTI</abbr> allows you to link your work in progress to an issue.  This link records your intentions and so has several advantages: </p>
+
+<ul>
+
+<li> you can find out later why you have files checked out. For instructions, see <a href="#section-14">Section 14, "Finding the issues you're working on"</a>. </li>
+
+<li> you can find out later where you're working on an issue. For instructions, see <a href="#section-15">Section 15, "Finding out where an issue is being worked on and by whom"</a>. </li>
+
+<li> other people can find out who's working on an issue and where. For instructions, see <a href="#section-15">Section 15, "Finding out where an issue is being worked on and by whom"</a>. </li>
+
+</ul>
+
+<p> To gain these advantages, you first need to set up a user jobview
+as described in <a href="#section-6.1">Section 6.1</a>, and then
+create a <dfn>pending changelist</dfn> containing your edits and
+link it to a Perforce job, as described in <a href="#section-6.2">Section
+6.2</a> (for the Perforce Visual Client (P4V)), <a href="#section-6.3">Section
+6.3</a> (for the Perforce command line), or <a
+href="#section-6.4">Section 6.4</a> (for the Perforce Web GUI).
+The link will show up in
+the defect tracker. For more information, see the <cite><a
+href="http://www.perforce.com/perforce/doc.072/manuals/p4guide/">Perforce
+User's Guide</a></cite>. </p>
+
+<p> Note that you can only ever link a changelist with an issue once.
+If you link the same changelist with the same issue again using a
+different status value, the effect is just to change the status
+value. </p>
+
+
+<h3><a id="section-6.1" name="section-6.1">6.1. Setting your user jobview</a></h3>
+
+<p>To set your user jobview in the Perforce Visual Client (P4V), follow these steps:</p>
+
+<ol>
+
+<li> Choose <span class="gui">Connection &gt; Edit Current User...</span>.</li>
+
+<li> Type a jobview into the JobView field (see <a href="#section-4">section 4</a> for advice on choosing a jobview). </li>
+
+<li>Click the <span class="gui">Save</span> button.</li>
+
+</ol>
+
+<p>To set your user jobview from the Perforce command line, follow these steps:</p>
+
+<ol>
+
+<li> Edit your user spec by typing <code class="command">p4 user</code>. </li>
+
+<li> Add a JobView field to your user spec if you don't yet have one. </li>
+
+<li> Enter a jobview into the JobView field (see <a href="#section-4">section 4</a> for advice on choosing a jobview) </li>
+
+</ol>
+
+<p> To set your user jobview in the Perforce Web GUI, follow these
+steps: </p>
+
+<ol>
+
+<li> Select the <span class="gui">User: spqr</span> link in the status
+bar at the top of the page.  Alternatively, select the <span
+class="gui">Users</span> tab, select your userid, and press the <span
+class="gui">edit</span> button. </li>
+
+<li> Type a jobview into the JobView field (see <a href="#section-4">section 4</a> for advice on choosing a jobview). </li>
+
+<li> Press the <span class="gui">Save</span> button. </li>
+
+</ol>
+
+<h3><a id="section-6.2" name="section-6.2">6.2. Using the Perforce Visual Client (P4V) to start work and link it to issues</a></h3>
+
+<p> To start work and link it to an issue, follow these steps: </p>
+
+<ol>
+
+<li> Choose <span class="gui">File &gt; New &gt; Pending Changelist...</span>.  This brings up the pane shown in <a href="#figure-6">figure 6</a>. </li>
+
+<li> Enter a description of the changes you're making in the <span class="gui">Description</span> field. </li>
+
+<li> Uncheck any files that you want to exclude in the <span class="gui">Files</span> list.  (The Files list is the list of edits from the default changelist.) </li>
+
+<li> Check the boxes next to the names of the jobs with which you want to link your edits.</li>
+
+<li> Click <span class="gui">Save as Numbered Changelist</span> to create the changelist. </li>
+
+</ol>
+
+<p> You can also change the links to jobs, or set the job status, by
+following these steps: </p>
+
+<ol>
+
+<li> Choose <span class="gui">View &gt; Pending Changelists...</span>.
+This selects the Pending Changelists pane. </li>
+
+<li> Double-click the changelist in question. </li>
+
+<li> To remove the link to a job, clear the checkbox next to the job in the jobs list. </li>
+
+<li> To add links to jobs, click the <span class="gui">Add Jobs...</span> button (See <a href="#figure-7">figure 7</a> for an example).</li>
+
+<li> To set the job status, use the pull-down status menu. </li>
+
+<li> To save the changelist without submitting the changes, click the
+<span class="gui">"Files"</span> checkbox twice to clear all the
+checkboxes, then click <span class="gui">Save</span>. </li>
+
+</ol>
+
+<p> To add more edits to the changelist later, drag the edits from other changelists. </p>
+
+<p> To check out files for edit, drag them from the depot view. </p>
+
+<div align="center">
+
+<p> <a id="figure-6" name="figure-6">Figure 6</a>. Creating a new changelist and linking it to jobs </p>
+
+<img src="p4v-new-change.png" alt="Screenshot showing the changelist creation in the Perforce Visual Client (P4V)" width="728" height="767" />
+
+<p> <a id="figure-7" name="figure-7">Figure 7. Adding a job fix</a> </p>
+
+<img src="p4v-add-jobs.png" alt="A screenshot of the Add Jobs dialog in the Perforce Visual Client (P4V)" width="726" height="830" />
+
+</div>
+
+
+<h3><a id="section-6.3" name="section-6.3">6.3. Using the Perforce command line to start work and link it to issues</a></h3>
+
+<p> To start work and link it to an issue, follow these steps: </p>
+
+<ol>
+
+<li>
+
+  Create a new pending changelist with your changes by using the following command:
+
+  <blockquote><pre class="command">p4 change -s</pre></blockquote>
+
+  This command opens a change specification in your editor.  With the
+  "-s" option, jobs that match your jobview appear in the
+  text form with an "ignore" keyword (see <a href="#figure-8">figure
+  8</a>).
+
+</li>
+
+<li> Enter a description of your changes under the "Description" heading, as usual. </li>
+
+<li> Delete any edits that you don't want to include from the <span class="gui">Filespecs</span> list.  (The Filespecs list is the list of edits from the default changelist.) </li>
+
+<li> <p>Edit the keyword next to the names of the jobs you want linked
+with the change.  When the change is submitted, the change is linked
+with the jobs, and the job statuses change to match this keyword.  Jobs
+that have the keyword "ignore" won't be changed or linked.</p>
+
+<p>For example, your jobview might match three jobs which show up as
+shown in <a href="#figure-8">figure 8</a>.  (If it doesn't look like
+this, then either you don't have a jobview set or else you forgot the
+<code class="command">-s</code> option).</p>
+
+<div align="center">
+
+<p> <a id="figure-8" name="figure-8">Figure 8</a>.  Jobs section of a
+new change form.</p>
+
+<table border="1" cellspacing="0" cellpadding="5"><tr><td><pre>
+Jobs:
+	bug1 ignore	# The division operator gets its
+	bug2 ignore	# There's no delete command
+	bug3 ignore	# When -O3 is specified, some loo
+</pre></td></tr></table>
+
+</div>
+
+<p>Suppose that your change fixes bug1, partially fixes bug2 (so
+leaving it open), and is unrelated to bug3.  Then you'd edit the
+form to look as shown in <a href="#figure-9">figure 9</a>.</p>
+
+<div align="center">
+
+<p> <a id="figure-9" name="figure-9">Figure 9</a>.  Jobs section of a
+change form, showing intended effect of submitting the changelist.</p>
+
+<table border="1" cellspacing="0" cellpadding="5"><tr><td><pre>
+Jobs:
+	bug1 closed	# The division operator gets its
+	bug2 open	# There's no delete command
+	bug3 ignore	# When -O3 is specified, some loo
+</pre></td></tr></table>
+
+</div>
+
+</li>
+
+<li> Add similar lines to the Jobs section of the form for other jobs you want to link. Delete lines for jobs you don't want linked. </li>
+
+<li> Close your editor to create a pending changelist with the jobs linked. </li>
+
+</ol>
+
+<p> When you submit a pending changelist later, the status of the linked jobs changes as specified. (To submit a pending changelist, use a command like <code class="command">p4 submit -c <i>changelist</i></code>). </p>
+
+<p> You can also add more links to jobs by using the following command: </p>
+
+<blockquote><pre class="command">p4 change -s <i>changelist</i></pre></blockquote>
+
+<p> where <i>changelist</i> is the number of the changelist you created
+above.</p>
+
+<p> To link pending changelists with jobs, use a command like the following: </p>
+
+<blockquote><pre class="command">p4 fix -s resolved -c 3004 bug34 bug94</pre></blockquote>
+
+<p> (where "resolved" is the status you want the jobs to change to, "3004" is the pending changelist number, and "bug34" and "bug94" are the jobs you want to link the changelist with). </p>
+
+<p> To add more edits to the changelist later, use the <code class="command">-c</code> option to many Perforce commands, or move the edits from other changelists using the <code class="gui">p4 reopen -c</code> command.  For more information, see the <cite><a href="http://www.perforce.com/perforce/doc.072/manuals/p4guide/">Perforce User's Guide</a></cite>. </p>
+
+<p> To remove links, use a command like the following: </p>
+
+<blockquote><pre class="command">p4 fix -d -c 3004 bug34 bug94</pre></blockquote>
+
+<p> (where "resolved" is the status you want the jobs to change to, "3004" is the pending changelist number, and "bug34" and "bug94" are the jobs you want to remove the link from). </p>
+
+
+<div align="center">
+
+<p> <a id="figure-10" name="figure-10">Figure 10</a>. Selecting jobs to link when submitting or creating a change from the command line with a jobview set </p>
+
+<table border="1" cellspacing="0" cellpadding="5"><tr><td><pre>
+# A Perforce Change Specification....
+
+Change:	new
+
+Client:	newton-skylark
+
+User:	newton
+
+Status:	new
+
+Description:
+	&lt;enter description here&gt;
+
+Jobs:
+	bug3 ignore	# When -O3 is specified, some loo
+	bug1 ignore	# The division operator gets its
+	bug2 ignore	# There's no delete command
+
+Files:
+	//depot/project/editor/src/buffer.c	# edit
+	//depot/project/editor/src/buffer.h	# edit
+</pre></td></tr></table>
+
+</div>
+
+<h3><a id="section-6.4" name="section-6.4">6.4. Using the Perforce Web GUI
+(P4Web) to start work and link it to issues</a></h3>
+
+<p> To start work and link it to an issue, follow these steps: </p>
+
+<ol>
+
+<li> Selecting the <span class="gui">Pending</span> tab.  This will show
+the Pending Changelists page. </li>
+
+<li> Select the changelist called <q>default</q>.  You will edit this and
+create a new pending changelist.  See <a href="#figure-11">figure 11</a>.</li>
+
+<li> Enter a description of the changes you're making in the <span class="gui">Description</span> field. </li>
+
+<li> Uncheck any files that you don't want to include in the <span
+class="gui">Files</span> list. </li>
+
+<li> Edit the list of jobs so that only jobs to which you want to link
+your change are displayed in the <span class="gui">Jobs</span> field.
+</li>
+
+<li> Choose the status to which you want to change those jobs from the <span class="gui">JobStatus</span> menu.  The statuses are changed when the changelist is submitted. </li>
+
+<li> Press <span class="gui">Create Changelist</span> to create the new
+numbered pending changelist. </li>
+
+</ol>
+
+<p> You can also add more links to jobs by selecting the changelist
+(from the Pending Changelists page) and repeating the steps above. </p>
+
+<div align="center">
+
+<p> <a id="figure-11" name="figure-11">Figure 11</a>. Creating a new changelist and linking it to jobs </p>
+
+<img src="p4web-new-change.png" alt="Screenshot showing a new changelist
+in the Perforce Web GUI" width="819" height="564" />
+
+</div>
+
+<h2><a id="section-7" name="section-7">7. Submitting partial work while keeping issues</a></h2>
+
+<p> You can submit a change and link it to an issue without changing the issue status.  This procedure allows an organization to track partially completed work that's related to an issue, as well as the final submission that resolves it. </p>
+
+<p> <strong>Note</strong>: Your organization's policy regarding links between changes and issues might not allow you to use this feature.  For more information, consult your manager or <abbr title="Perforce Defect Tracking Integration">P4DTI</abbr> administrator. </p>
+
+<p> If you're linking intermediate stages of changelists with issues, you probably don't want to change the status of the issue.  The way to do this is to link the changelist with the issue as usual, but with the same status as the issue currently has.  For example, in Perforce you can use the <code class="command">p4 fix</code> command with the "-s" argument set to the current status of that issue.  When linking the final check-in, the "-s" argument is something like "fixed" or "resolved" or perhaps "closed". </p>
+
+<p> To submit partial work while keeping issues, follow the procedures described in <a href="#section-8">Section 8</a>, except that, when fixing the job, set the status to the job's <em>current</em> status, rather than to the resolved status. </p>
+
+
+<h2><a id="section-8" name="section-8">8. Submitting completed work and resolving issues</a></h2>
+
+<p> Once you have completed work on a job, you can use Perforce to submit the associated changelist, link the changelist to the job, and change the job status, all at the same time. </p>
+
+<p> Make sure your jobview is set before you follow the procedures in this section.  See <a href="#section-6.1">Section 6.1, "Setting your user jobview"</a>. </p>
+
+
+<h3><a id="section-8.1" name="section-8.1">8.1. In the Perforce Visual Client (P4V)</a></h3>
+
+<p> To submit completed work and resolve issues, follow these steps: </p>
+
+<ol>
+
+<li> Choose <span class="gui">View &gt; Pending Changelists...</span>.
+This selects the Pending Changelists pane. </li>
+
+<li> Double-click the changelist you want to submit.  This opens the
+dialog shown in <a href="#figure-12">figure 12</a>. </li>
+
+<li> Enter a description of the changes you're making in the <span class="gui">Description</span> field. </li>
+
+<li> Select the status to which you want to change those jobs from the
+job status menu. </li>
+
+<li> Click <span class="gui">Submit</span> to submit the changelist,
+link to the jobs, and change the job statuses. </li>
+
+</ol>
+
+
+<div align="center">
+
+<p> <a id="figure-12" name="figure-12">Figure 12</a>. Submitting a
+changelist from the Perforce Visual Client (P4V)</p>
+
+<img src="p4v-submit-dialog.png" alt="A screenshot of the submit
+dialog from the Perforce Visual Client (P4V)" width="726" height="767"/>
+
+</div>
+
+
+<h3><a id="section-8.2" name="section-8.2">8.2. From the Perforce command line</a></h3>
+
+<p>If the edits you want to link are on your default changelist, follow these steps to submit completed work and resolve issues: </p>
+
+<ol>
+
+<li> Enter the command
+
+  <blockquote><pre class="command">p4 submit -s</pre></blockquote>
+
+  This command opens a change specification in your editor.  With the
+  "-s" option, a list of jobs that match your jobview appears in the
+  text form with an "ignore" keyword. (See <a href="#figure-8">figure
+  8</a> for an example.)
+
+</li>
+
+<li> Enter a description of your changes under the "Description" heading, as usual. </li>
+
+<li> Edit the keyword next to the names of the jobs you want linked with the change.  The change is linked with the jobs, and the job statuses are changed to match this keyword.  Jobs that have the keyword "ignore" won't be changed or linked. </li>
+
+<li> Add similar lines for other jobs you want to link. Delete lines for jobs you don't want linked. </li>
+
+<li> Close your editor to submit the change, link the jobs, and change their statuses. </li>
+
+</ol>
+
+<p> If the edits you want to link are on a pending changelist, follow these steps: </p>
+
+<ol>
+
+<li> Edit the changelist as described in <a href="#section-6.3">Section 6.3, "Using the Perforce command line to start work and link it to issues"</a>.   </li>
+
+<li> <p> Submit the changelist by entering the command </p>
+
+  <blockquote><pre class="command">p4 submit -c <i>changelist</i></pre></blockquote>
+
+</li>
+
+</ol>
+
+<h3><a id="section-8.3" name="section-8.3">8.3. Using the Perforce development environment plug-ins</a></h3>
+
+<p> To submit completed work and resolve issues, follow these steps: </p>
+
+<ol>
+
+<li> Begin your usual check-in procedure. When the check-in dialog opens, leave the check-in comment blank and click <span class="gui">OK</span>.  This procedure opens a second, more detailed, dialog that includes a list of jobs to choose from. (See <a href="#figure-13">figure 13</a> for an example.) </li>
+
+<li> Enter a description of your changes, as usual. </li>
+
+<li> Delete the jobs you <em>don't</em> want to link with your changelist from the list.  You may also add similar lines for other jobs you want to link. </li>
+
+<li> Enter the new status for the jobs in the <span class="gui">JobStatus</span> field. </li>
+
+<li> Click <span class="gui">OK</span> to submit the changes. </li>
+
+</ol>
+
+<p> When you submit your changelist, the status of the jobs you left in the form is updated to match the <span class="gui">JobStatus</span> field and the changelist is linked with them with that status. </p>
+
+
+<div align="center">
+
+<p> <a id="figure-13" name="figure-13">Figure 13</a>. Selecting jobs to link when submitting from Visual Studio </p>
+
+<img src="p4plugin-submit.gif" alt="A screenshot of the full submit dialog from the Perforce MSVC plug-in" width="456" height="670" />
+
+</div>
+
+
+<h3><a id="section-8.4" name="section-8.4">8.4. In the Perforce Web GUI
+(P4Web)</a></h3>
+
+<p> To submit completed work and resolve issues, follow these steps: </p>
+
+<ol>
+
+<li> Selecting the <span class="gui">Pending</span> tab.  This will show
+the Pending Changelists page. </li>
+
+<li> Select the changelist you want to submit.  This opens a page to
+edit the changelist, similar to the one in
+<a href="#figure-14">figure 14</a>. </li>
+
+<li> Enter a description of the changes you're making in the <span class="gui">Description</span> field. </li>
+
+<li> Uncheck any files that you don't want to include in the <span
+class="gui">Files</span> list. </li>
+
+<li> Edit the list of jobs so that only jobs to which you want to link
+your change are displayed in the <span class="gui">Jobs</span> field.
+</li>
+
+<li> Choose the status to which you want to change those jobs from the <span class="gui">JobStatus</span> menu.  The statuses are changed when the changelist is submitted. </li>
+
+<li> Press <span class="gui">Submit</span> to submit the changelist,
+link to the jobs, and change the job statuses. </li>
+
+</ol>
+
+<div align="center">
+
+<p> <a id="figure-14" name="figure-14">Figure 14</a>. Selecting jobs to
+link when submitting from the Perforce Web GUI with a jobview set </p>
+
+<img src="p4web-submit-change.png"
+ alt="A screenshot of the submit dialog from the Perforce Web GUI"
+ width="817" height="704" />
+
+</div>
+
+
+<h2><a id="section-9" name="section-9">9. Linking already-completed work to an issue</a></h2>
+
+<p> You can use Perforce to link a change that you've already made with a issue you've been assigned. For example, suppose you realize that a change you made yesterday also resolves some issues you've been assigned to work on today.  You can record this information in the defect tracking system and get rid of those issues. </p>
+
+<p> <strong>Note</strong>: The defect tracker's workflow might prevent you from linking to an issue that you don't own.  If you try, the <abbr title="Perforce Defect Tracking Integration">P4DTI</abbr> removes your link and sends you e-mail. </p>
+
+
+<h3><a id="section-9.1" name="section-9.1">9.1. In the Perforce Visual Client (P4V)</a></h3>
+
+<p> It is not possible to link already-completed work to an issue in
+P4V 2005.2. </p>
+
+<h3><a id="section-9.2" name="section-9.2">9.2. From the Perforce command line</a></h3>
+
+<p> To link already-completed work to an issue from the Perforce command line, enter a <code class="command">p4 fix</code> command.  For example, the following command links changelist 4096 with issues bug23 and bug1239 and changes their status to "resolved": </p>
+
+<blockquote><pre class="command">p4 fix -s resolved -c 4096 bug23 bug1239</pre></blockquote>
+
+<p> If you don't specify a "-s" option, the issue status is changed to "closed". </p>
+
+
+<h2><a id="section-10" name="section-10">10. Finding the changes linked to an issue</a></h2>
+
+<p> You can use Perforce or the defect tracker to see the changes resulting from an issue, as described in the following subsections.  This procedure is useful if you need to: </p>
+
+<ul>
+
+<li> find out what was done about a bug </li>
+
+<li> verify that an issue has been dealt with correctly </li>
+
+<li> check that all the changes linked with the issue are properly justified </li>
+
+<li> see what areas of the code have changed so that you can direct testing at those areas </li>
+
+</ul>
+
+
+<h3><a id="section-10.1" name="section-10.1">10.1. In the Perforce Visual Client (P4V)</a></h3>
+
+<p> To find the changes linked to an issue, follow these steps: </p>
+
+<ol>
+
+<li> Choose <span class="gui">View &gt; Jobs...</span>.  This selects
+the Jobs pane.  (See <a href="#figure-2">figure 2</a> for an example.)
+</li>
+
+<li> Select the job you want to know about. </li>
+
+<li> Click the <span class="gui">Show Fixes</span> button. </li>
+
+<li> In the Fixes pane, hover over a changelist to see the changelist
+description, as shown in <a href="#figure-15">figure 15</a>. </li>
+
+<li> Click or double-click on the changelist to see more details about
+it, as shown in <a href="#figure-16">figure 16</a>.</li>
+
+</ol>
+
+
+<div align="center">
+
+<p> <a id="figure-15" name="figure-15">Figure 15</a>. Finding linked changes from the Perforce Visual Client (P4V) </p>
+
+<img src="p4v-show-fixes.png" alt="Screenshot showing the fixes for a job in P4V" width="726" height="767" />
+
+<p> <a id="figure-16" name="figure-16">Figure 16</a>. Viewing changelist details from the Perforce Visual Client (P4V) </p>
+
+<img src="p4v-change-diffs.png"
+ alt="Screenshot showing details of a changelist in P4V"
+ width="726" height="767" />
+
+</div>
+
+
+<h3><a id="section-10.2" name="section-10.2">10.2. From the Perforce command line</a></h3>
+
+<p> To find the changes linked with an issue, enter a <code class="command">p4 fixes</code> command.  For example, the following command lists the changes resulting from issue bug34: </p>
+
+<blockquote><pre class="command">p4 fixes -j bug34</pre></blockquote>
+
+<p> For details, see the <cite><a href="http://www.perforce.com/perforce/doc.072/manuals/p4guide/">Perforce User's Guide</a></cite>. </p>
+
+
+<h3><a id="section-10.3" name="section-10.3">10.3. In the Perforce Web GUI
+(P4Web)</a></h3>
+
+<p> To find the changes linked to an issue, follow these steps: </p>
+
+<ol>
+
+<li> Select the <span class="gui">Jobs</span> tab.  This shows the
+Perforce Jobs page. (See <a href="#figure-3">figure 3</a> for an
+example).</li>
+
+<li> Select the job you want to know about. </li>
+
+<li> Select <span class="gui">View fixes for job</span>
+from the dropdown menu just below the tab bar (see <a
+href="#figure-17">figure 17</a>).  You may also need to
+press the <span class="gui">Go</span> button.</li>
+
+<li> Select any change from the <span class="gui">Fixes</span> list to
+view its description. </li>
+
+</ol>
+
+<div align="center">
+
+<p> <a id="figure-17" name="figure-17">Figure 17</a>. Finding linked
+changes from the Perforce Web GUI </p>
+
+<img src="p4web-view-fixes.png"
+ alt="A screenshot showing the View Fixes for Job page about to be selected"
+ width="819" height="568" />
+
+</div>
+
+
+<h3><a id="section-10.4" name="section-10.4">10.4. Using the defect tracker</a></h3>
+
+<div class="bugzilla">
+
+<p>In Bugzilla, look in the "Perforce replication" section of the bug
+form to find the changes linked with an issue (see <a
+href="#figure-18">figure 18</a>).  If you don't see the Perforce
+replication section, contact your <abbr title="Perforce Defect Tracking
+Integration">P4DTI</abbr> administrator.</p>
+
+<div align="center">
+
+<p> <a id="figure-18" name="figure-18">Figure 18</a>. The changes linked with a Bugzilla bug </p>
+
+<img src="bz-fixes.png" alt="A screenshot of the Perforce replication section of a bug in Bugzilla" width="763" height="899" />
+
+</div>
+
+</div>
+
+
+<h2><a id="section-11" name="section-11">11. Finding the issues linked with a change</a></h2>
+
+<p> You can use Perforce to see the issues linked with a changelist. </p>
+
+
+<h3><a id="section-11.1" name="section-11.1">11.1. In the Perforce Visual Client (P4V)</a></h3>
+
+<p> To find the issues linked with a change, follow these steps: </p>
+
+<ol>
+
+<li>Select the changelist you're interested in, in either the Pending
+Changelists or Submitted Changelists pane.</li>
+
+<li>Click on the "fold-down" plus widget to the left of the changelist
+icon to see a list of affected files and jobs (See <a
+href="#figure-19">figure 19</a> for an example).</li>
+
+<li>Double click on a job to view it.</li>
+
+</ol>
+
+
+<div align="center">
+
+<p> <a id="figure-19" name="figure-19">Figure 19</a>. Finding linked issues from the Perforce Visual Client (P4V) </p>
+
+<img src="p4v-changelist-jobs.png" alt="A P4V screenshot showing a changelist with jobs" width="726" height="767" />
+
+</div>
+
+
+<h3><a id="section-11.2" name="section-11.2">11.2. From the Perforce command line</a></h3>
+
+<p> To find the issues linked with a change, enter a <code class="command">p4 fixes</code> command.  For example, the following command finds the issues linked with changelist 4339: </p>
+
+<blockquote><pre class="command">p4 fixes -c 4339</pre></blockquote>
+
+<p> For details, see the <cite><a href="http://www.perforce.com/perforce/doc.072/manuals/p4guide/">Perforce User's Guide</a></cite>.</p>
+
+
+<h3><a id="section-11.3" name="section-11.3">11.3. In the Perforce Web GUI
+(P4Web)</a></h3>
+
+<p> To find the issues linked with a change, follow these steps: </p>
+
+<ol>
+
+<li> Select the <span class="gui">Submitted</span> tab to find a
+submitted changelist, or select the <span class="gui">Pending</span> tab to
+find a pending changelist. </li>
+
+<li> Select the changelist you're interested in.  A submitted changelist
+displays the jobs fixed in the <span class="gui">Fixes</span> list (and
+links to them).  A pending changelist displays the jobs that it will
+link to when submitted in the <span class="gui">Jobs</span> field. </li>
+
+</ol>
+
+
+<h2><a id="section-12" name="section-12">12. Finding the files affected by an issue</a></h2>
+
+<p> You can use Perforce to find out which files were changed in
+order to fix an issue. To do this, you first need to find out the
+changelists linked with the issue, as described in
+<a href="#section-10">Section 10, "Finding the changes linked to an
+issue"</a>.
+</p>
+
+
+<h3><a id="section-12.1" name="section-12.1">12.1. In the Perforce Visual Client (P4V)</a></h3>
+
+<p> To find the files affected by an issue, follow these steps: </p>
+
+<ol>
+
+<li> Find out the changelists linked with the issue, as described in
+<a href="#section-10">Section 10, "Finding the changes linked to an
+issue"</a>.
+</li>
+
+<li> Double-click on a changelist number to get a full description of
+the change, including the list of affected files (see <a
+href="#figure-16">figure 16</a>). </li>
+
+</ol>
+
+
+<h3><a id="section-12.2" name="section-12.2">12.2. From the Perforce command line</a></h3>
+
+<p> To find the files affected by an issue, follow these steps: </p>
+
+<ol>
+
+<li> Find out the changelists linked with the issue, as described in
+<a href="#section-10">Section 10, "Finding the changes linked to an
+issue"</a>.
+</li>
+
+<li> <p> Enter a <code class="command">p4 describe</code> command at the Perforce command line.  For example, the following command outputs a list of the files that were checked in to fix the issue and the diffs for those files: </p>
+
+<blockquote><pre class="command">p4 describe 4339</pre></blockquote>
+
+<p> For more information, see the <cite><a href="http://www.perforce.com/perforce/doc.072/manuals/p4guide/">Perforce User's Guide</a></cite>. </p> </li>
+
+</ol>
+
+
+<h3><a id="section-12.3" name="section-12.3">12.3. In the Perforce Web GUI
+(P4Web)</a></h3>
+
+<p> To find the files affected by an issue, follow these steps: </p>
+
+<ol>
+
+<li> Find out the changelists linked with the issue, as described in
+<a href="#section-10">Section 10, "Finding the changes linked to an
+issue"</a>.
+</li>
+
+<li> Select a changelist from the <span class="gui">fixes</span> to
+view the description of that changelist.  The <span class="gui">Affected
+files</span> list displays the files affected by that change. </li>
+
+</ol>
+
+
+<h2><a id="section-13" name="section-13">13. Finding the issues
+linked to files</a></h2>
+
+<p> You can use Perforce to find out which issues are linked with
+particular files.  This is very useful for finding out which issues
+have affected files in the past. </p>
+
+
+<h3><a id="section-13.1" name="section-13.1">13.1. In the Perforce Visual Client (P4V)</a></h3>
+
+<p> It is not possible to find the jobs linked to a file or set of
+files in P4V 2005.2.</p>
+
+<h3><a id="section-13.2" name="section-13.2">13.2. From the Perforce command line</a></h3>
+
+<p>To find the issues linked to a file or set of files, enter a <code
+class="command">p4 fixes</code> or a <code class="command">p4
+jobs</code> command at the Perforce command line.  For example, the
+following command lists the changelists with fixes for the files with
+a ".c" extension in the "/depot/foo/bar" directory: </p>
+
+<blockquote><pre class="command">p4 fixes //depot/foo/bar/*.c</pre></blockquote>
+
+<p> The following command lists all the issues that have been linked to all the files with a ".c" extension in the "/depot/foo/bar" directory: </p>
+
+<blockquote><pre class="command">p4 jobs //depot/foo/bar/*.c</pre></blockquote>
+
+<p> For more information, see the <cite><a href="http://www.perforce.com/perforce/doc.072/manuals/p4guide/">Perforce User's Guide</a></cite>. </p>
+
+
+<h3><a id="section-13.3" name="section-13.3">13.3. In the Perforce Web GUI
+(P4Web)</a></h3>
+
+<p> To find the issues linked to a file or set of files, follow these steps: </p>
+
+<ol>
+
+<li> Select the <span class="gui">Files</span> tab.  This displays the
+Perforce Files page. </li>
+
+<li> Browse the tree to find the file or files you are interested in.
+You can browse either the <span class="gui">Workspace Tree</span> or the
+<span class="gui">Depot Tree</span>.  When browsing using P4Web you will
+only be able to select either a single file or an entire directory.  It
+is not possible to select just two files from a directory containing
+hundreds, for example. </li>
+
+<li> Select the <span class="gui">Jobs</span> tab.  This shows the
+Perforce Jobs page, an example of which is
+<a href="#figure-20">figure 20</a>.
+Note that the directory containing the files of interest is
+displayed in the <span class="gui">Path</span> field. </li>
+
+<li> Check the checkbox labelled
+<span class="gui">if fixed in this path</span>. </li>
+
+<li> Press the <span class="gui">Filter</span> button.  This will
+restrict the list of jobs displayed to ones that caused a change to a
+file that is in the path that you selected. </li>
+
+</ol>
+
+<div align="center">
+
+<p> <a id="figure-20" name="figure-20">Figure 20</a>. Finding issues
+that affected certain files from the Perforce Web GUI </p>
+
+<img src="p4web-filter-jobs.png"
+  alt="A screenshot showing job filtering in the Perforce Web GUI"
+  width="1006" height="720" />
+
+</div>
+
+<h2><a id="section-14" name="section-14">14. Finding the issues you're working on</a></h2>
+
+<p> If you've been linking your work with issues as described in <a href="#section-6">Section 6</a>, you can find out which issues you're working on.  This procedure is useful when, for example, you are resuming work on a project after a few days away and can't quite remember which issues you were last working on. </p>
+
+<p> To find who's working on an issue, or issues you were working on in a different workspace, see <a href="#section-15">Section 15, "Finding out where an issue is being worked on and by whom"</a>.) </p>
+
+
+<h3><a id="section-14.1" name="section-14.1">14.1. In the Perforce Visual Client (P4V)</a></h3>
+
+<p> To find the issues you're working on, follow these steps: </p>
+
+<ol>
+
+<li> Choose <span class="gui">View &gt; Pending Changelists...</span>.
+This selects the Pending Changelists pane, showing the list of pending
+changelists for your client. </li>
+
+<li> Expand a pending changelist by clicking on its plus symbol.  The
+jobs you were working on show up with an icon of a wrench. </li>
+
+</ol>
+
+
+<h3><a id="section-14.2" name="section-14.2">14.2. From the Perforce command line</a></h3>
+
+<p> To find out what you were working on, use a combination of the <code class="command">p4 changes</code> and <code class="command">p4 fixes</code> commands.  For example, the following command finds your pending changelists: </p>
+
+<blockquote><pre class="command">p4 changes -s pending | grep <i>username</i></pre></blockquote>
+
+<p> The following command then shows the issues you were working on in that changelist: </p>
+
+<blockquote><pre class="command">p4 fixes -c <i>changelist</i></pre></blockquote>
+
+
+<h3><a id="section-14.3" name="section-14.3">14.3. In the Perforce Web GUI
+(P4Web)</a></h3>
+
+<p> To find the issues you're working on, follow these steps: </p>
+
+<ol>
+
+<li> Select the <span class="gui">Pending</span> tab.  This shows the
+Pending Changelists page. </li>
+
+<li> Select a changelist; the issues linked to that changelist appear in
+the <span class="gui">Jobs</span> field. </li>
+
+</ol>
+
+
+<h2><a id="section-15" name="section-15">15. Finding out where an issue is being worked on and by whom</a></h2>
+
+<p> If other people at your organization are linking their work with issues as described in <a href="#section-6">Section 6</a>, you can find out who's working on an issue and in which workspace. This procedure is useful when you know that someone is working on an issue but you don't know who or where their work is--they might be on vacation, or have left the company, or perhaps it's you and you've just forgotten all about it. </p>
+
+<p> To find out which issues you were working on in a particular workspace, see <a href="#section-15">Section 14, "Finding the issues you're working on"</a>. </p>
+
+
+<h3><a id="section-15.1" name="section-15.1">15.1. In the Perforce Visual Client (P4V)</a></h3>
+
+<p> To find out where an issue is being worked on, follow these steps: </p>
+
+<ol>
+
+<li> Choose <span class="gui">View &gt; Jobs...</span>.  This selects
+the Jobs pane.  (See <a href="#figure-2">figure 2</a> for an example.)
+</li>
+
+<li> Select the job you want to know about. </li>
+
+<li> Click the <span class="gui">Show Fixes</span> button.</li>
+
+<li> In the Fixes pane, the user and client for each changelist are
+shown in the User column, as shown in <a href="#figure-15">figure
+15</a>. You can't tell the difference between pending and submitted
+changelists in the Fixes list, so you need to compare the linked
+changes in this job with the changelists in the Pending Changelists
+pane. </li>
+
+<li> Choose <span class="gui">View &gt; Pending Changelists...</span>.
+This selects the Pending Changelists pane. </li>
+
+<li> Choose "All depots" to see pending changelists for other clients,
+and see if any of the linked changes from the Fixes list appear
+here. </li>
+
+</ol>
+
+
+<h3><a id="section-15.2" name="section-15.2">15.2. From the Perforce command line</a></h3>
+
+<p> To find out where an issue is being worked on, use a combination of the <code class="command">p4 fixes</code> and <code class="command">p4 changes</code> commands.  For example, the following commands list the changelists that are linked to bug743 and the list of pending changelists: </p>
+
+<blockquote><pre class="command">p4 fixes -j bug743
+p4 changes -s pending</pre></blockquote>
+
+<p> Any changelists that appear in both lists are work in progress, and this tells you the user and client (workspace) where the work is happening. </p>
+
+
+<h2><a id="section-16" name="section-16">16. Finding out which issues have been fixed in a release</a></h2>
+
+<p> Once you have the P4DTI running successfully and all developers are
+conscientiously creating fix records in Perforce (see sections <a
+href="#section-6">6</a> to <a href="#section-9">9</a>), then it is
+possible to automatically generate lists of fixed and open issues for a
+release. </p>
+
+<p> To discover which issues have been fixed in a release, issue the
+command: </p>
+
+<blockquote><pre>p4 fixes -i <i>files-contributing-to-the-release</i></pre></blockquote>
+
+<p> To specify the files contributing to the release: </p>
+
+<ol>
+
+<li> If each release has its own branch, use a filespec like
+<code>//depot/project/foo/release/2.7/...</code>. </li>
+
+<li> If releases are identified by a changelevel on a branch, use a
+filespec like
+<code>//depot/project/foo/version/2/...@12345</code>. </li>
+
+<li> If releases are identified by labels, use a filespec like
+<code>//depot/project/foo/...@release-2.7</code>. </li>
+
+</ol>
+
+<p> This generates a list of fixes in the source contributing to the
+release.  From this list you need to extract the fixes that actually
+closed the job, because there may be fixes that don't actually close the
+job; see <a href="#section-7">section 7</a>.  Then you need to remove
+duplicate entries, because there may be several fixes that close a job.
+On Unix systems you can do this with a command like: </p>
+
+<blockquote><pre>p4 fixes -i <i>files-contributing-to-the-release</i> |
+grep -v '\)$' | cut -f 1 -d ' ' | sort -u</pre></blockquote>
+
+<p> if jobs are closed by fixing them to 'closed', or with a command
+like </p>
+
+<blockquote><pre>p4 fixes -i <i>files-contributing-to-the-release</i> |
+grep '(<i>closed-state</i>)$' | cut -f 1 -d ' ' | sort -u</pre></blockquote>
+
+<p> if jobs are closed by fixing them to <i>closed-state</i>.  (There
+are two alternatives here because the <code class="command">p4
+fixes</code> command has one format for fixes to "closed" and another
+for fixes to any other status.)</p>
+
+<p> This allows you to work out the jobs fixed in a release of a
+product.  Then: </p>
+
+<ul>
+
+<li> You can work out the issues newly fixed in a release (to put in
+release notes, for example) by taking the difference between the issues
+fixed in that release and the issues fixed in the previous
+release. </li>
+
+<li> You can work out which issues are known in a release by taking the
+difference between the issues fixed in that release and the total list
+of issues for that project or product. </li>
+
+</ul>
+
+
+<h2><a id="section-A" name="section-A">A. References</a></h2>
+
+<table>
+
+<tr valign="top">
+
+  <td>[<a id="ref-GDR-2000-05-03" name="ref-GDR-2000-05-03" href="http://www.ravenbrook.com/project/p4dti/doc/2000-05-03/reqs-and-use-cases/">GDR 2000-05-03</a>]</td>
+
+  <td>
+    "Requirements and Use Cases for Perforce/Defect Tracking Integration";
+    <a href="mailto:gdr@ravenbrook.com">Gareth Rees</a>;
+    <a href="http://www.ravenbrook.com/">Ravenbrook Limited</a>;
+    2000-05-03.
+  </td>
+
+</tr>
+
+<tr valign="top">
+
+  <td>[<a id="ref-Perforce-2007-05-21a" name="ref-Perforce-2007-05-21a"
+  href="http://www.perforce.com/perforce/doc.072/manuals/p4guide/">Perforce
+ +2007-05-21a</a>]</td>
+
+  <td>
+    "Perforce 2007.2 User's Guide";
+    <a href="http://www.perforce.com/">Perforce Software</a>;
+    2007-05-21;
+    &lt;<a href="http://www.perforce.com/perforce/doc.072/manuals/p4guide/">http://www.perforce.com/perforce/doc.072/manuals/p4guide/</a>&gt;, &lt;<a href="http://www.perforce.com/perforce/doc.072/manuals/p4guide/p4guide.pdf">http://www.perforce.com/perforce/doc.072/manuals/p4guide/p4guide.pdf</a>&gt;.
+  </td>
+
+</tr>
+
+<tr valign="top">
+
+  <td>[<a id="ref-Perforce-2007-05-21c" name="ref-Perforce-2007-05-21c"
+  href="http://www.perforce.com/perforce/doc.072/manuals/cmdref/">Perforce
+ +2007-05-21c</a>]</td>
+
+  <td>
+    "Perforce 2007.2 Command Reference";
+    <a href="http://www.perforce.com/">Perforce Software</a>;
+    2007-05-21;
+    &lt;<a
+    href="http://www.perforce.com/perforce/doc.072/manuals/cmdref/">http://www.perforce.com/perforce/doc.072/manuals/cmdref/</a>&gt;,
+    &lt;<a
+    href="http://www.perforce.com/perforce/doc.072/manuals/cmdref/cmdref.pdf">http://www.perforce.com/perforce/doc.072/manuals/cmdref/cmdref.pdf</a>&gt;.
+  </td>
+
+</tr>
+
+</table>
+
+
+<h2><a id="section-B" name="section-B">B. Document History</a></h2>
+
+<table>
+
+<tr valign="top">
+
+  <td>2000-08-10</td>
+
+  <td><a href="mailto:rb@ravenbrook.com">RB</a></td>
+
+  <td>Created placeholder.</td>
+
+</tr>
+
+<tr valign="top">
+
+  <td>2000-10-15</td>
+
+  <td><a href="mailto:lmb@ravenbrook.com">LMB</a></td>
+
+  <td>Added section titles; copied in some use cases as comments.</td>
+
+</tr>
+
+<tr valign="top">
+
+  <td>2000-11-10</td>
+
+  <td><a href="mailto:rb@ravenbrook.com">RB</a></td>
+
+  <td>Added scads of text with rough documentation of many of the use cases so that <a href="mailto:lmb@ravenbrook.com">LMB</a> can work on real documentation.</td>
+
+</tr>
+
+<tr valign="top">
+
+  <td>2000-11-26</td>
+
+  <td><a href="mailto:lmb@ravenbrook.com">LMB</a></td>
+
+  <td>Fixed Sections 4.5 and 4.6.  Started writing Section 4.15.  Started writing
+  Section 2.</td>
+
+</tr>
+
+<tr valign="top">
+
+  <td>2000-11-26</td>
+
+  <td><a href="mailto:rb@ravenbrook.com">RB</a></td>
+
+  <td>Changed "document" to "file" throughout.</td>
+
+</tr>
+
+<tr valign="top">
+
+  <td>2000-11-30</td>
+
+  <td><a href="mailto:rb@ravenbrook.com">RB</a></td>
+
+  <td>Updated references to Perforce 2000.1 to 2000.2, now that the AG says to use 2000.2</td>
+
+</tr>
+
+<tr valign="top">
+
+  <td>2000-12-04</td>
+
+  <td><a href="mailto:rb@ravenbrook.com">RB</a></td>
+
+  <td> Added screenshots and text figures at various places suggested by LMB. </td>
+
+</tr>
+
+<tr valign="top">
+
+  <td>2000-12-05</td>
+
+  <td><a href="mailto:rb@ravenbrook.com">RB</a></td>
+
+  <td> Added brief instructions for using the new <span class="gui">Show Fixes</span> button in the Perforce Visual Client (P4V). </td>
+
+</tr>
+
+<tr valign="top">
+
+  <td>2000-12-06</td>
+
+  <td><a href="mailto:rb@ravenbrook.com">RB</a></td>
+
+  <td> Corrected the instructions for "p4 submit" to "p4 submit -s" and removed unnecessary figures for the previously different "p4 change -s". </td>
+
+</tr>
+
+<tr valign="top">
+
+  <td>2000-12-06</td>
+
+  <td><a href="mailto:rb@ravenbrook.com">RB</a></td>
+
+  <td>Added overview sections.</td>
+
+</tr>
+
+<tr valign="top">
+
+  <td>2000-12-06</td>
+
+  <td><a href="mailto:rb@ravenbrook.com">RB</a></td>
+
+  <td>Complete re-organization of the manual into more logical steps.</td>
+
+</tr>
+
+<tr valign="top">
+
+  <td>2000-12-07</td>
+
+  <td><a href="mailto:rb@ravenbrook.com">RB</a></td>
+
+  <td> Added table of contents.  Renumbered figures. </td>
+
+</tr>
+
+<tr valign="top">
+
+  <td>2000-12-07</td>
+
+  <td><a href="mailto:rb@ravenbrook.com">RB</a></td>
+
+  <td> Removed note about the "ignore" bug in "p4 submit -s" and "p4 change -s" as it's now fixed in the Perforce server level we require. </td>
+
+</tr>
+
+<tr valign="top">
+
+  <td>2001-01-02</td>
+
+  <td><a href="mailto:gdr@ravenbrook.com">GDR</a></td>
+
+  <td>Section 5.1 suggests jobviews that will work in both the TeamTrack and Bugzilla integrations.  Made reference style consistent with AG.  Added section 2.5 asking readers to upgrade to 2000.2.</td>
+
+</tr>
+
+<tr valign="top">
+
+  <td>2001-01-05</td>
+
+  <td><a href="mailto:lmb@ravenbrook.com">LMB</a></td>
+
+  <td> Made lots of copyedits.  Removed ellipses, since they don't conform to Perforce style.  Added glossary entries. </td>
+
+</tr>
+
+<tr valign="top">
+
+  <td>2001-01-07</td>
+
+  <td><a href="mailto:lmb@ravenbrook.com">LMB</a></td>
+
+  <td> Finished improving as per my intuition.  Incorporated some comments from TC@perforce (most weren't applicable to the UG). Finished the glossary. </td>
+
+</tr>
+
+<tr valign="top">
+
+  <td>2001-01-08</td>
+
+  <td><a href="mailto:lmb@ravenbrook.com">LMB</a></td>
+
+  <td> Deleted comments, title material, and Sections A and B in preparation for handoff to Perforce. </td>
+
+</tr>
+
+<tr valign="top">
+
+  <td>2001-01-21</td>
+
+  <td><a href="mailto:lmb@ravenbrook.com">LMB</a></td>
+
+  <td> At GDR's request, replaced title material and Sections A and B. </td>
+
+</tr>
+
+<tr valign="top">
+
+  <td>2001-01-22</td>
+
+  <td><a href="mailto:lmb@ravenbrook.com">LMB</a></td>
+
+  <td> As per TC@perforce's request: started every numbered step with a concrete verb; commented out Section 2.1 and Figures 3 and 4; renumbered figures; renamed Section 2.3; added necessary verbiage to all procedure lead-ins. Re-read TC@perforce's requests more carefully; put Section 2.1 back, moved Section 3 to Section 2.2, and renumbered all headings.  At Richard's request, re-added figure 4 and renumbered figures. </td>
+
+</tr>
+
+<tr valign="top">
+
+  <td> 2001-02-01 </td>
+
+  <td> <a href="mailto:rb@ravenbrook.com">RB</a> </td>
+
+  <td> Rewrote introduction to section 2 to provide description of the requirements the software meets without sounding like "marketing".  Updated references to Perforce manuals to version 2000.2. </td>
+
+</tr>
+
+<tr valign="top">
+
+  <td> 2001-03-02 </td>
+
+  <td> <a href="mailto:rb@ravenbrook.com">RB</a> </td>
+
+  <td> Transferred copyright to Perforce under their license. </td>
+
+</tr>
+
+<tr valign="top">
+
+  <td> 2001-04-11 </td>
+
+  <td> <a href="mailto:rb@ravenbrook.com">RB</a> </td>
+
+  <td> Updated version to 1.1. </td>
+
+</tr>
+
+<tr valign="top">
+
+  <td>2001-04-20</td>
+
+  <td><a href="mailto:gdr@ravenbrook.com">GDR</a></td>
+
+  <td>Added instruction to select status when adding a fix to a submitted changelist in P4Win.</td>
+
+</tr>
+
+<tr valign="top">
+
+  <td>2001-05-22</td>
+
+  <td><a href="mailto:gdr@ravenbrook.com">GDR</a></td>
+
+  <td>Added section "Finding out which issues have been fixed in a release".</td>
+
+</tr>
+
+<tr valign="top">
+
+  <td>2001-06-08</td>
+
+  <td><a href="mailto:gdr@ravenbrook.com">GDR</a></td>
+
+  <td>Added reminder about the <code class="command">-s</code> option to <code class="command">p4 change</code> and <code class="command">p4 submit</code>.  Gave example showing how to fill out the change form.</td>
+
+</tr>
+
+<tr valign="top">
+
+  <td>2001-07-14</td>
+
+  <td><a href="mailto:gdr@ravenbrook.com">GDR</a></td>
+
+  <td>Improved glossary.  Gave Bugzilla equal billing with TeamTrack by adding a screenshot and specifying appropriate jobviews.   References to Perforce 2000.2 now refer to 2001.1 where appropriate, since we now support Perforce 2001.1.</td>
+
+</tr>
+
+<tr valign="top">
+
+  <td>2001-09-14</td>
+
+  <td><a href="mailto:gdr@ravenbrook.com">GDR</a></td>
+
+  <td>Added section explaining how the P4DTI enforces the defect tracker's rules.  Explained why fixes aren't deleted even if they cause an illegal change.</td>
+
+</tr>
+
+<tr valign="top">
+
+  <td>2003-05-21</td>
+
+  <td><a href="mailto:nb@ravenbrook.com">NB</a></td>
+
+  <td>de-TeamTracked.</td>
+
+</tr>
+
+<tr valign="top">
+
+  <td>2003-12-17</td>
+
+  <td><a href="mailto:nb@ravenbrook.com">NB</a></td>
+
+  <td>Updated Perforce manual references to 2003.1.</td>
+
+</tr>
+
+<tr valign="top">
+  <td>2004-07-22</td>
+  <td><a href="mailto:drj@ravenbrook.com">DRJ</a></td>
+  <td>Added instructions for P4Web (2004.2 P4Web can now manipulate jobs).</td>
+</tr>
+
+<tr valign="top">
+  <td>2004-07-28</td>
+  <td><a href="mailto:drj@ravenbrook.com">DRJ</a></td>
+  <td>Removed section 15.3 pending P4Web improvement.</td>
+</tr>
+
+<tr valign="top">
+  <td>2005-10-17</td>
+  <td><a href="mailto:nb@ravenbrook.com">NB</a></td>
+  <td>Replaced P4Win instructions with those for P4V 2005.1.</td>
+</tr>
+
+</table>
+
+
+<h2><a id="section-Glossary" name="section-Glossary">Glossary</a></h2>
+
+<table>
+
+<tr valign="top">
+
+  <td><a id="term-changelist" name="term-changelist" href="#term-changelist">changelist</a></td>
+
+  <td> An atomic change transaction in Perforce. </td>
+
+</tr>
+
+<tr valign="top">
+
+  <td><a id="term-fix" name="term-fix" href="#term-fix">fix</a></td>
+
+  <td> A link between a job and a changelist. </td>
+
+</tr>
+
+<tr valign="top">
+
+  <td><a id="term-issue" name="term-issue" href="#term-issue">issue</a></td>
+
+  <td> A user-defined unit of work tracked by the defect tracker. </td>
+
+</tr>
+
+<tr valign="top">
+
+  <td><a id="term-job" name="term-job" href="#term-job">job</a></td>
+
+  <td> A unit of work tracked by Perforce. </td>
+
+</tr>
+
+<tr valign="top">
+
+  <td><a id="term-jobview" name="term-jobview" href="#term-jobview">jobview</a></td>
+
+  <td> A string used to find jobs that match particular criteria.
+</td>
+
+</tr>
+
+<tr valign="top">
+
+  <td><a id="term-pending-changelist" name="term-pending-changelist" href="#term-pending-changelist">pending changelist</a></td>
+
+  <td> A changelist that has not been submitted. </td>
+
+</tr>
+
+<tr valign="top">
+
+  <td><a id="term-P4DTI" name="term-P4DTI" href="#term-P4DTI"><abbr title="Perforce Defect Tracking Integration">P4DTI</abbr></a></td>
+
+  <td>Perforce Defect Tracking Integration.  The software that integrates Perforce Software's fast configuration management system with defect tracking systems.</td>
+
+</tr>
+
+<tr valign="top">
+
+  <td><a id="term-replication" name="term-replication" href="#term-replication">replication</a></td>
+
+  <td> The operation of copying data between a defect tracker and a Perforce server in order to keep each one up to date with changes made in the other. Replication allows developers to do their routine defect resolution work entirely from their Perforce client, without needing to use the defect tracker's interface. It also allows developers to relate their changes to defect tracking issues. </td>
+
+</tr>
+
+<tr valign="top">
+
+  <td><a id="term-replicator" name="term-replicator" href="#term-replicator">replicator</a></td>
+
+  <td> A process that copies (replicates) data between a defect tracker and a Perforce server in order to keep each one up to date with changes made in the other. </td>
+
+</tr>
+
+<tr valign="top">
+
+  <td><a id="term-workflow" name="term-workflow" href="#term-workflow">workflow</a></td>
+
+  <td> A set of rules that control who can do what to which issues. </td>
+
+</tr>
+
+</table>
+
+
+<hr />
+
+<p> <small>This document is copyright &copy; 2001 Perforce Software, Inc.  All rights reserved.</small> </p>
+
+<p> <small>Redistribution and use of this document in any form, with or without modification, is permitted provided that redistributions of this document retain the above copyright notice, this condition and the following disclaimer.</small> </p>
+
+<p> <small> <strong> This document is provided by the copyright holders and contributors "as is" and any express or implied warranties, including, but not limited to, the implied warranties of merchantability and fitness for a particular purpose are disclaimed. In no event shall the copyright holders and contributors be liable for any direct, indirect, incidental, special, exemplary, or consequential damages (including, but not limited to, procurement of substitute goods or services; loss of use, data, or profits; or business interruption) however caused and on any theory of liability, whether in contract, strict liability, or tort (including negligence or otherwise) arising in any way out of the use of this document, even if advised of the possibility of such damage. </strong> </small> </p>
+
+</body>
+
+</html>
